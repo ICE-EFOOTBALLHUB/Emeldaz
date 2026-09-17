@@ -707,6 +707,42 @@
     let currentStaff = null; // { id, name, handle, isOwner, active, permissions } once signed in + loaded
     let staffDocUnsub = null;
 
+    // ---------- DEBUG ERROR BANNER ----------
+    // Every Firestore listener/write below reports failures through this
+    // instead of a generic message, so a "Missing or insufficient
+    // permissions" error tells you exactly WHICH read/write hit WHICH rule,
+    // for which uid/email — remove this block once things are working.
+    let debugBanner = null;
+    function reportFirebaseError(where, err) {
+      const uid = auth.currentUser ? auth.currentUser.uid : '(signed out)';
+      const email = auth.currentUser ? auth.currentUser.email : '(signed out)';
+      const code = err && err.code ? err.code : '(no code)';
+      const msg = err && err.message ? err.message : String(err);
+      // Full detail in the console (and as a JS object, so you can expand it).
+      console.error(`[FIRESTORE ERROR] ${where}`, { code, message: msg, uid, email, err });
+
+      // Also a persistent on-page banner, since mobile Safari/Chrome hide
+      // the console by default and this can happen before you can open it.
+      if (!debugBanner) {
+        debugBanner = document.createElement('div');
+        debugBanner.style.cssText = `
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
+          max-height: 40vh; overflow-y: auto; background: #1a0000; color: #ffb4b4;
+          font: 12px/1.4 monospace; padding: 10px 12px; white-space: pre-wrap;
+          border-top: 3px solid #ff4d4d;
+        `;
+        document.body.appendChild(debugBanner);
+      }
+      const line = document.createElement('div');
+      line.style.cssText = 'margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #442;';
+      line.textContent =
+        `[${new Date().toLocaleTimeString()}] ${where}\n` +
+        `  code: ${code}\n` +
+        `  message: ${msg}\n` +
+        `  as: ${email} (uid: ${uid})`;
+      debugBanner.prepend(line);
+    }
+
     // Panel listeners (bookings/orders/products/services/staff/activityLog) are only
     // safe to open once we have a signed-in, provisioned user — otherwise the very
     // first subscribe attempt hits the security rules while auth.currentUser is still
@@ -832,6 +868,7 @@
               });
             } catch (e) {
               lockFeedback.textContent = `Couldn't set up owner account: ${e.message}`;
+              reportFirebaseError('staff/{uid} self-provision setDoc (owner)', e);
             }
             return; // onSnapshot will fire again once the doc exists
           }
@@ -858,7 +895,9 @@
         // rules actually allow these collection-wide reads. Open them here.
         subscribeAllPanels();
       }, (err) => {
-        lockFeedback.textContent = `Couldn't load your account: ${err.message}`;
+        lockFeedback.textContent = `Couldn't load your account: ${err.code || ''} ${err.message}`;
+        reportFirebaseError(`staff/${user.uid} listener (this user's own roster doc)`, err);
+        lockAdmin(); // make sure we land in a known, visible state instead of a stale screen
       });
     });
 
@@ -1049,6 +1088,7 @@
         renderReservations();
       }, (err) => {
         reservationsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load reservations: ${err.message}</td></tr>`;
+        reportFirebaseError('bookings listener', err);
       });
     }
 
@@ -1061,6 +1101,7 @@
         logActivity('booking.status', `Set reservation ${id} to ${newStatus}`);
       } catch (err) {
         alert(`Couldn't update status: ${err.message}`);
+        reportFirebaseError(`bookings/${id} updateDoc (status)`, err);
       }
     });
 
@@ -1073,6 +1114,7 @@
         logActivity('booking.delete', `Removed reservation ${id}`);
       } catch (err) {
         alert(`Couldn't delete: ${err.message}`);
+        reportFirebaseError(`bookings/${id} deleteDoc`, err);
       }
     });
 
@@ -1120,6 +1162,7 @@
         renderOrders();
       }, (err) => {
         ordersBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load orders: ${err.message}</td></tr>`;
+        reportFirebaseError('orders listener', err);
       });
     }
 
@@ -1132,6 +1175,7 @@
         logActivity('order.status', `Set order ${id} to ${newStatus}`);
       } catch (err) {
         alert(`Couldn't update status: ${err.message}`);
+        reportFirebaseError(`orders/${id} updateDoc (status)`, err);
       }
     });
 
@@ -1144,6 +1188,7 @@
         logActivity('order.delete', `Removed order ${id}`);
       } catch (err) {
         alert(`Couldn't delete: ${err.message}`);
+        reportFirebaseError(`orders/${id} deleteDoc`, err);
       }
     });
 
@@ -1246,6 +1291,7 @@
         renderProducts();
       }, (err) => {
         productsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load products: ${err.message}</td></tr>`;
+        reportFirebaseError('products listener', err);
       });
     }
 
@@ -1376,6 +1422,7 @@
         resetProductForm();
       } catch (err) {
         showFeedback(productFeedback, err.message || 'Something went wrong.', true);
+        reportFirebaseError('products create/update', err);
       } finally {
         productSubmitBtn.disabled = false;
         productSubmitBtn.textContent = editingId ? 'Update Product' : 'Add Product';
@@ -1417,6 +1464,7 @@
           logActivity('product.delete', `Removed product "${p ? p.name : id}"`);
         } catch (err) {
           showFeedback(productFeedback, `Couldn't delete: ${err.message}`, true);
+          reportFirebaseError(`products/${id} deleteDoc`, err);
         }
       }
     });
@@ -1431,6 +1479,7 @@
         logActivity('product.stock', `Set stock for ${id} to ${newStock}`);
       } catch (err) {
         showFeedback(productFeedback, `Couldn't update stock: ${err.message}`, true);
+        reportFirebaseError(`products/${id} updateDoc (stock)`, err);
       }
     });
 
@@ -1488,6 +1537,7 @@
         renderStaff(); // service names feed the "availability for" tags in the staff table
       }, (err) => {
         servicesBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load services: ${err.message}</td></tr>`;
+        reportFirebaseError('services listener', err);
       });
     }
 
@@ -1540,6 +1590,7 @@
         resetServiceForm();
       } catch (err) {
         showFeedback(serviceFeedback, err.message || 'Something went wrong.', true);
+        reportFirebaseError('services create/update', err);
       } finally {
         serviceSubmitBtn.disabled = false;
         serviceSubmitBtn.textContent = editingId ? 'Update Service' : 'Add Service';
@@ -1575,6 +1626,7 @@
           logActivity('service.delete', `Removed service "${s ? s.name : id}"`);
         } catch (err) {
           showFeedback(serviceFeedback, `Couldn't delete: ${err.message}`, true);
+          reportFirebaseError(`services/${id} deleteDoc`, err);
         }
       }
     });
@@ -1660,6 +1712,7 @@
         logActivity('service.availability', `Toggled ${key} for "${service.name}"`);
       } catch (err) {
         showFeedback(availabilityFeedback, `Couldn't save: ${err.message}`, true);
+        reportFirebaseError(`services/${selectedServiceId} updateDoc (openSlots)`, err);
       } finally {
         btn.disabled = false;
       }
@@ -1758,6 +1811,7 @@
         renderStaff();
       }, (err) => {
         staffBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load staff: ${err.message}</td></tr>`;
+        reportFirebaseError('staff list listener', err);
       });
     }
 
@@ -1815,6 +1869,7 @@
           resetStaffForm();
         } catch (err) {
           showFeedback(staffFeedback, err.message || 'Something went wrong.', true);
+          reportFirebaseError(`staff/${editingId} updateDoc`, err);
         } finally {
           staffSubmitBtn.disabled = false;
           staffSubmitBtn.textContent = 'Update Staff Member';
@@ -1845,6 +1900,7 @@
           showFeedback(staffFeedback, 'That handle is already taken.', true);
         } else {
           showFeedback(staffFeedback, err.message || 'Something went wrong.', true);
+          reportFirebaseError('staff create (new account/doc)', err);
         }
       } finally {
         await disposeSecondaryAuth(secondaryApp);
@@ -1890,6 +1946,7 @@
           logActivity('staff.toggle_active', `${nextActive ? 'Reactivated' : 'Deactivated'} "${s.name}"`);
         } catch (err) {
           showFeedback(staffFeedback, `Couldn't update: ${err.message}`, true);
+          reportFirebaseError(`staff/${id} updateDoc (active)`, err);
         }
       }
     });
@@ -1924,7 +1981,13 @@
         `;
         activityBody.appendChild(tr);
       });
-      }, () => { /* silent — expected for non-owners once rules are deployed */ });
+      }, (err) => {
+        // Expected/silent for non-owners (rules block this read on purpose).
+        // If YOU are the owner and still see this reported, that's the bug.
+        if (currentStaff && currentStaff.isOwner) {
+          reportFirebaseError('activityLog listener (owner)', err);
+        }
+      });
     }
   </script>
 
