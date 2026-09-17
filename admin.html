@@ -707,6 +707,40 @@
     let currentStaff = null; // { id, name, handle, isOwner, active, permissions } once signed in + loaded
     let staffDocUnsub = null;
 
+    // Panel listeners (bookings/orders/products/services/staff/activityLog) are only
+    // safe to open once we have a signed-in, provisioned user — otherwise the very
+    // first subscribe attempt hits the security rules while auth.currentUser is still
+    // null, gets a permission-denied, and (since onSnapshot never auto-retries after
+    // an error) stays dead for the rest of the page session even after login succeeds.
+    let panelsSubscribed = false;
+    let bookingsUnsub = null;
+    let ordersUnsub = null;
+    let productsUnsub = null;
+    let servicesUnsub = null;
+    let staffListUnsub = null;
+    let activityLogUnsub = null;
+
+    function subscribeAllPanels() {
+      if (panelsSubscribed) return;
+      panelsSubscribed = true;
+      subscribeBookings();
+      subscribeOrders();
+      subscribeProducts();
+      subscribeServices();
+      subscribeStaffList();
+      subscribeActivityLog();
+    }
+
+    function unsubscribeAllPanels() {
+      panelsSubscribed = false;
+      if (bookingsUnsub) { bookingsUnsub(); bookingsUnsub = null; }
+      if (ordersUnsub) { ordersUnsub(); ordersUnsub = null; }
+      if (productsUnsub) { productsUnsub(); productsUnsub = null; }
+      if (servicesUnsub) { servicesUnsub(); servicesUnsub = null; }
+      if (staffListUnsub) { staffListUnsub(); staffListUnsub = null; }
+      if (activityLogUnsub) { activityLogUnsub(); activityLogUnsub = null; }
+    }
+
     function can(category) {
       if (!currentStaff || currentStaff.active === false) return false;
       if (currentStaff.isOwner) return true;
@@ -771,6 +805,7 @@
     onAuthStateChanged(auth, (user) => {
       if (staffDocUnsub) { staffDocUnsub(); staffDocUnsub = null; }
       currentStaff = null;
+      unsubscribeAllPanels();
 
       if (!user) {
         lockAdmin();
@@ -819,6 +854,9 @@
         adminWhoami.style.display = 'flex';
         adminWhoamiName.textContent = `${data.name || data.handle}${data.isOwner ? ' (Owner)' : ''}`;
         applyPermissionsToUI();
+        // Only now — signed in AND the roster doc says we're active — do the
+        // rules actually allow these collection-wide reads. Open them here.
+        subscribeAllPanels();
       }, (err) => {
         lockFeedback.textContent = `Couldn't load your account: ${err.message}`;
       });
@@ -1005,12 +1043,14 @@
       });
     }
 
-    onSnapshot(query(bookingsCol, orderBy('createdAt', 'desc')), (snap) => {
-      reservationsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderReservations();
-    }, (err) => {
-      reservationsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load reservations: ${err.message}</td></tr>`;
-    });
+    function subscribeBookings() {
+      bookingsUnsub = onSnapshot(query(bookingsCol, orderBy('createdAt', 'desc')), (snap) => {
+        reservationsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderReservations();
+      }, (err) => {
+        reservationsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load reservations: ${err.message}</td></tr>`;
+      });
+    }
 
     reservationsBody.addEventListener('change', async (e) => {
       if (!e.target.matches('select') || !can('bookings')) return;
@@ -1074,12 +1114,14 @@
       });
     }
 
-    onSnapshot(query(ordersCol, orderBy('createdAt', 'desc')), (snap) => {
-      ordersCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderOrders();
-    }, (err) => {
-      ordersBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load orders: ${err.message}</td></tr>`;
-    });
+    function subscribeOrders() {
+      ordersUnsub = onSnapshot(query(ordersCol, orderBy('createdAt', 'desc')), (snap) => {
+        ordersCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderOrders();
+      }, (err) => {
+        ordersBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load orders: ${err.message}</td></tr>`;
+      });
+    }
 
     ordersBody.addEventListener('change', async (e) => {
       if (!e.target.matches('select') || !can('orders')) return;
@@ -1198,12 +1240,14 @@
       });
     }
 
-    onSnapshot(query(productsCol, orderBy('createdAt', 'desc')), (snap) => {
-      productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderProducts();
-    }, (err) => {
-      productsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load products: ${err.message}</td></tr>`;
-    });
+    function subscribeProducts() {
+      productsUnsub = onSnapshot(query(productsCol, orderBy('createdAt', 'desc')), (snap) => {
+        productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderProducts();
+      }, (err) => {
+        productsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load products: ${err.message}</td></tr>`;
+      });
+    }
 
     // ---------- Photo staging (up to 5) ----------
     function renderPhotoPreviewGrid() {
@@ -1437,13 +1481,15 @@
       renderAvailabilityJumpbar();
     }
 
-    onSnapshot(query(servicesCol, orderBy('createdAt', 'desc')), (snap) => {
-      servicesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderServices();
-      renderStaff(); // service names feed the "availability for" tags in the staff table
-    }, (err) => {
-      servicesBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load services: ${err.message}</td></tr>`;
-    });
+    function subscribeServices() {
+      servicesUnsub = onSnapshot(query(servicesCol, orderBy('createdAt', 'desc')), (snap) => {
+        servicesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderServices();
+        renderStaff(); // service names feed the "availability for" tags in the staff table
+      }, (err) => {
+        servicesBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load services: ${err.message}</td></tr>`;
+      });
+    }
 
     function resetServiceForm() {
       serviceForm.reset();
@@ -1706,12 +1752,14 @@
       });
     }
 
-    onSnapshot(query(staffCol, orderBy('createdAt', 'desc')), (snap) => {
-      staffCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderStaff();
-    }, (err) => {
-      staffBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load staff: ${err.message}</td></tr>`;
-    });
+    function subscribeStaffList() {
+      staffListUnsub = onSnapshot(query(staffCol, orderBy('createdAt', 'desc')), (snap) => {
+        staffCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderStaff();
+      }, (err) => {
+        staffBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load staff: ${err.message}</td></tr>`;
+      });
+    }
 
     function resetStaffForm() {
       staffForm.reset();
@@ -1857,7 +1905,8 @@
       return ts.toDate().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
     }
 
-    onSnapshot(query(collection(db, 'activityLog'), orderBy('createdAt', 'desc'), limit(200)), (snap) => {
+    function subscribeActivityLog() {
+      activityLogUnsub = onSnapshot(query(collection(db, 'activityLog'), orderBy('createdAt', 'desc'), limit(200)), (snap) => {
       if (!currentStaff || !currentStaff.isOwner) return; // rules also block this read for non-owners
       activityBody.innerHTML = '';
       if (snap.empty) {
@@ -1875,7 +1924,8 @@
         `;
         activityBody.appendChild(tr);
       });
-    }, () => { /* silent — expected for non-owners once rules are deployed */ });
+      }, () => { /* silent — expected for non-owners once rules are deployed */ });
+    }
   </script>
 
 </body>
