@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salon &amp; Spa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     RESET — applies to all screen sizes
+     ============================================================ */
+  :root {
+    color-scheme: light dark;
+    --beige: #e8dcc8;
+    --beige-light: #f3ece0;
+    --beige-dark: #d8c3a0;
+    --brown-text: #3b2f22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #111;
+    background: #fff;
+  }
+
+  /* ============================================================
+     LAYOUT STRUCTURE
+     ============================================================ */
+
+  /* ============================================================
+     FOOTER — beige block: centered logo, then a centered
+     "Visit Us" info block, then a copyright bar at the very
+     bottom, full-width and separated from the rest.
+     ============================================================ */
+  footer {
+    background: var(--beige);
+  }
+  .footer-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2.5rem 1.25rem 2rem;
+  }
+  .footer-logo img {
+    display: block;
+    height: 40px;
+    width: auto;
+    margin: 0 auto;
+  }
+  .footer-info {
+    margin-top: 1.5rem;
+  }
+  .footer-heading {
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--brown-text);
+    margin-bottom: 0.6rem;
+  }
+  .footer-info p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #4a3f30;
+  }
+  .footer-bottom {
+    border-top: 1px solid rgba(59, 47, 34, 0.2);
+    padding: 1rem 1.25rem;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+  }
+
+  /* ============================================================
+     NAVBAR — black background, same on mobile and desktop.
+     Structural behavior (hamburger vs. inline links) differs
+     by screen size; edit each block independently below.
+     ============================================================ */
+  .navbar {
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.25rem;
+    position: relative;
+    z-index: 100;
+  }
+  .navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .navbar .logo img {
+    display: block;
+    height: 32px; /* adjust to fit your logo's proportions */
+    width: auto;
+  }
+  .navbar .logo-text {
+    font-family: "Dancing Script", "Brush Script MT", cursive;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .navbar .nav-links a {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  /* Hamburger button — mobile only, toggled via checkbox hack
+     so no JS is required. Replace with a JS-driven menu later
+     if desired without changing the navbar's color/markup. */
+  .nav-toggle {
+    display: none;
+  }
+  .nav-toggle-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .nav-toggle-label span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: #fff;
+  }
+
+  /* ============================================================
+     MOBILE VIEW (default / base styles)
+     Edit this block to change the MOBILE layout only.
+     ============================================================ */
+  .navbar .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #000;
+    padding: 0 1.25rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease, padding 0.2s ease;
+    z-index: 100;
+  }
+  .nav-toggle:checked ~ .nav-links {
+    max-height: 300px;
+    padding: 1rem 1.25rem;
+  }
+  .hero {
+    padding: 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero img,
+  .hero video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero img {
+    position: relative;
+    z-index: 1;
+    height: auto;
+    transition: opacity 0.6s ease;
+  }
+  .hero video {
+    position: absolute;
+    inset: 0;
+    z-index: 0; /* behind the poster image until it's ready */
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .hero.video-ready img {
+    opacity: 0; /* poster fades out */
+  }
+  .hero.video-ready video {
+    opacity: 1; /* video fades in and takes over visually */
+  }
+
+  /* Text overlay — left-aligned, uppercase, sits over the hero image */
+  .hero-overlay {
+    position: absolute;
+    left: 0;
+    bottom: 10%;
+    width: 100%;
+    padding: 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    color: var(--beige);
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .hero-line {
+    display: block;
+    text-transform: uppercase;
+    opacity: 0; /* hidden until animation runs */
+  }
+  .hero-line-1,
+  .hero-line-2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .hero-line-3 {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 400;
+    max-width: 30ch;
+  }
+
+  /* Hero CTA button — same width as the description text,
+     sits under it, still inside the hero overlay. */
+  .hero-btn {
+    display: block;
+    width: 100%;
+    max-width: 30ch;
+    margin-top: 1.25rem;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-shadow: none;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+    background: var(--beige);
+    border-radius: 4px;
+    opacity: 0; /* hidden until animation runs */
+    animation: slideInUp 0.6s ease-out 1.3s forwards;
+  }
+  .hero-btn-secondary {
+    margin-top: 0.75rem;
+    color: var(--beige);
+    background: transparent;
+    border: 2px solid var(--beige);
+    animation: slideInUp 0.6s ease-out 1.6s forwards;
+  }
+
+  /* Line-by-line animation: each line slides in from its own
+     direction and fades in, staggered so they appear in sequence
+     rather than all at once. */
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-line-1 {
+    animation: slideInLeft 0.6s ease-out 0.1s forwards;
+  }
+  .hero-line-2 {
+    animation: slideInRight 0.6s ease-out 0.5s forwards;
+  }
+  .hero-line-3 {
+    animation: slideInUp 0.6s ease-out 0.9s forwards;
+  }
+  /* ============================================================
+     ABOUT — short intro section right after the hero.
+     Left-aligned, bold uppercase header + a short paragraph.
+     ============================================================ */
+  .about {
+    padding: 2.5rem 1.25rem;
+    text-align: left;
+    background: var(--beige-light);
+  }
+  .about-heading {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--brown-text);
+  }
+  .about-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #4a3f30;
+    max-width: 60ch;
+  }
+
+  /* Each actual rendered line (measured and wrapped by JS into
+     .split-line / .split-line-inner) slides in from the left,
+     one line after another, when .about gets .in-view added
+     by the IntersectionObserver script near the end of body. */
+  .split-line {
+    display: block;
+    overflow: hidden; /* masks the inner line while it's off to the left */
+  }
+  .split-line-inner {
+    display: inline-block;
+    transform: translateX(-110%);
+    transition: transform 0.6s ease-out;
+  }
+  .about.in-view .split-line-inner {
+    transform: translateX(0);
+  }
+  .about.no-anim .split-line-inner {
+    transition: none; /* used on resize rebuilds after already revealed */
+  }
+
+  /* ============================================================
+     DESKTOP / PC VIEW
+     Everything inside this media query targets larger screens
+     only (768px and up). Edit this block to change the
+     DESKTOP layout only, without touching mobile styles above.
+     ============================================================ */
+  @media (min-width: 768px) {
+    .nav-toggle-label {
+      display: none; /* no hamburger on desktop */
+    }
+    .navbar .nav-links {
+      position: static;
+      flex-direction: row;
+      gap: 1.5rem;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+      background: transparent;
+    }
+    .about {
+      padding: 4rem 3rem;
+    }
+    .about-heading {
+      font-size: 2.25rem;
+    }
+    .about-text {
+      font-size: 1.1rem;
+    }
+    .hero-line-1,
+    .hero-line-2 {
+      font-size: 3rem;
+    }
+    .hero-line-3 {
+      font-size: 1.1rem;
+      max-width: 40ch;
+    }
+    .hero-btn {
+      max-width: 40ch;
+      font-size: 1.15rem;
+      padding: 1.25rem 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+     Same markup for mobile and desktop. CSS above controls
+     whether links show inline (desktop) or in a dropdown
+     triggered by the checkbox hack (mobile).
+     ============================================================ -->
+<header class="navbar">
+  <div class="logo">
+    <img src="logo.png" alt="Salon &amp; Spa logo">
+    <span class="logo-text">Emeldaz</span>
+  </div>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle">
+  <label for="nav-toggle" class="nav-toggle-label">
+    <span></span><span></span><span></span>
+  </label>
+
+  <nav class="nav-links">
+    <a href="#">Book Appointment</a>
+    <a href="#">Products</a>
+    <a href="#">Services</a>
+    <a href="#">Contact</a>
+    <a href="#">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <!-- Mobile gets hero.jpg (portrait); 768px+ swaps to
+         hero-pc.jpg (landscape) via the <source> media query.
+         Both files should sit alongside this HTML file. -->
+    <picture>
+      <source media="(min-width: 768px)" srcset="hero-pc.jpg">
+      <img src="hero.jpg" alt="Salon &amp; Spa">
+    </picture>
+
+    <!-- Video has no src yet on purpose: hero.jpg/hero-pc.jpg paints
+         first for a fast opening, then script.js attaches and loads
+         hero.mp4 (or hero-pc.mp4 on desktop) in the background and
+         crossfades to it once it's ready to play. -->
+    <video muted loop playsinline preload="none" aria-hidden="true"></video>
+
+    <div class="hero-overlay">
+      <span class="hero-line hero-line-1">Renewed Beauty</span>
+      <span class="hero-line hero-line-2">From Experienced Hands</span>
+      <span class="hero-line hero-line-3">Hair, beauty and spa services crafted to make you look and feel your best</span>
+      <a href="#" class="hero-btn">Book Appointment</a>
+      <a href="#" class="hero-btn hero-btn-secondary">Products</a>
+    </div>
+  </section>
+
+  <section class="about">
+    <h2 class="about-heading split-lines">Beauty, Care &amp; Confidence</h2>
+    <p class="about-text split-lines">At Emeldaz Unisex Salon &amp; Spa, we offer professional hair, beauty, and spa services in a welcoming environment. From fresh cuts and stunning hairstyles to relaxing treatments and nail care, we're here to help you look and feel your best.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-logo">
+      <img src="logo.png" alt="Emeldaz Unisex Salon &amp; Spa logo">
+    </div>
+    <div class="footer-info">
+      <h3 class="footer-heading">Visit Us</h3>
+      <p>
+        202 Peter Odili Road, Port Harcourt, Nigeria<br>
+        +234 904 370 9147<br>
+        Available for bookings via WhatsApp
+      </p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; EMELDAZ UNISEX SALON 2026</p>
+  </div>
+</footer>
+
+<script>
+  // Swap the static hero poster for looping video once the video
+  // has actually buffered enough to play smoothly. If the visitor
+  // has "reduce motion" turned on, skip the video entirely and
+  // just keep the static jpg.
+  (function () {
+    var prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+    if (prefersReducedMotion) return;
+
+    var hero = document.querySelector('.hero');
+    var video = hero.querySelector('video');
+    var isDesktop = window.matchMedia('(min-width: 768px)').matches;
+
+    var source = document.createElement('source');
+    source.src = isDesktop ? 'hero-pc.mp4' : 'hero.mp4';
+    source.type = 'video/mp4';
+    video.appendChild(source);
+
+    // 'canplaythrough' = enough is buffered to play without stalling.
+    video.addEventListener('canplaythrough', function () {
+      hero.classList.add('video-ready');
+      video.play().catch(function () {
+        /* Autoplay blocked (rare with muted video) — poster stays visible. */
+      });
+    }, { once: true });
+
+    video.load();
+  })();
+
+  // Split each ".split-lines" element's text into its actual
+  // *rendered* lines (which change with screen width), then wrap
+  // each line so it can be slid in from the left individually.
+  (function () {
+    var elements = document.querySelectorAll('.split-lines');
+    if (!elements.length) return;
+
+    function splitIntoLines(el) {
+      // Grab the plain text once, before any rebuild, from a
+      // cached copy so repeated rebuilds (on resize) stay accurate.
+      if (!el.dataset.originalText) {
+        el.dataset.originalText = el.textContent.trim();
+      }
+      var words = el.dataset.originalText.split(/\s+/);
+
+      // Lay the words out as plain inline spans first, so the
+      // browser wraps them exactly as it would the real text.
+      el.innerHTML = '';
+      var wordSpans = words.map(function (word, i) {
+        var span = document.createElement('span');
+        span.textContent = word + (i < words.length - 1 ? ' ' : '');
+        el.appendChild(span);
+        return span;
+      });
+
+      // Group the words by their rendered top offset — same
+      // offsetTop means the browser put them on the same line.
+      var lines = [];
+      var lastTop = null;
+      wordSpans.forEach(function (span) {
+        var top = span.offsetTop;
+        if (top !== lastTop) {
+          lines.push([]);
+          lastTop = top;
+        }
+        lines[lines.length - 1].push(span.textContent);
+      });
+
+      // Rebuild: one .split-line (clipping mask) per rendered
+      // line, containing one .split-line-inner (the bit that
+      // actually slides) with that line's words.
+      el.innerHTML = '';
+      lines.forEach(function (lineWords, i) {
+        var mask = document.createElement('span');
+        mask.className = 'split-line';
+        var inner = document.createElement('span');
+        inner.className = 'split-line-inner';
+        inner.textContent = lineWords.join('');
+        inner.style.transitionDelay = (i * 0.15) + 's';
+        mask.appendChild(inner);
+        el.appendChild(mask);
+      });
+    }
+
+    function rebuildAll(skipAnim) {
+      var about = document.querySelector('.about');
+      if (skipAnim) about.classList.add('no-anim');
+      elements.forEach(splitIntoLines);
+      if (skipAnim) {
+        // Force layout, then drop the no-anim guard on the next frame.
+        void about.offsetHeight;
+        requestAnimationFrame(function () {
+          about.classList.remove('no-anim');
+        });
+      }
+    }
+
+    rebuildAll(false);
+
+    // Line breaks change with viewport width, so re-measure on
+    // resize. If already revealed, rebuild instantly (no replay).
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        var about = document.querySelector('.about');
+        rebuildAll(about.classList.contains('in-view'));
+      }, 200);
+    });
+  })();
+
+  // Reveal the About section's lines one by one, from the left,
+  // the first time it scrolls into view (fires once, then stops).
+  (function () {
+    var about = document.querySelector('.about');
+    if (!about) return;
+
+    if (!('IntersectionObserver' in window)) {
+      about.classList.add('in-view'); // graceful fallback: just show it
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          about.classList.add('in-view');
+          observer.unobserve(about);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    observer.observe(about);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+rules_version = '2';
+
+// ============================================================
+// EMELDAZ — Firestore Security Rules (draft)
+// ------------------------------------------------------------
+// This is NOT deployed automatically — paste it into
+// Firebase Console → Firestore Database → Rules, or deploy via
+// `firebase deploy --only firestore:rules` if you're using the CLI.
+//
+// Mirrors the permissions model in admin.html:
+//   /staff/{uid} — one doc per staff member (doc ID = their Auth UID)
+//     { name, handle, isOwner, active, permissions: {
+//         bookings, orders, products, services, staff } }
+//
+// Every write checks the caller's own /staff/{uid} doc — hiding a button
+// in the UI is not security, this is.
+// ============================================================
+
+function isSignedIn() {
+  return request.auth != null;
+}
+
+function staffDoc() {
+  return get(/databases/$(database)/documents/staff/$(request.auth.uid));
+}
+
+function isActiveStaff() {
+  return isSignedIn()
+    && staffDoc().data.active == true;
+}
+
+function isOwner() {
+  return isActiveStaff() && staffDoc().data.isOwner == true;
+}
+
+function hasPerm(perm) {
+  return isOwner()
+    || (isActiveStaff() && staffDoc().data.permissions[perm] == true);
+}
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- STAFF ROSTER ----------
+    match /staff/{staffId} {
+      // Anyone signed in can read the roster (admin.html shows names/perms
+      // in the Staff section, which is itself hidden client-side unless
+      // permitted — but reads are cheap and non-sensitive here since no
+      // codes/passwords are ever stored in Firestore, only in Auth).
+      allow read: if isSignedIn();
+
+      // A brand-new owner account may create ONLY its own doc, and only
+      // with isOwner: true — this is the one-time self-provisioning path
+      // in admin.html for the fixed owner email.
+      allow create: if isSignedIn()
+        && staffId == request.auth.uid
+        && request.auth.token.email == 'emeldazfixed@emeldaz.com'
+        && request.resource.data.isOwner == true;
+
+      // Any other staff doc may only be created by someone with the
+      // staff-management permission.
+      allow create: if hasPerm('staff') && staffId != request.auth.uid;
+
+      // Updates: managers with the staff permission can edit anyone.
+      // Anyone can update their OWN doc, but only non-permission fields
+      // (name) — never their own isOwner/active/permissions, which would
+      // be a privilege-escalation path.
+      allow update: if hasPerm('staff')
+        || (isSignedIn() && staffId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['name']));
+
+      // No deletes from the client — deactivate via the `active` flag
+      // instead (a hard delete would orphan the Firebase Auth account,
+      // which can't be removed from client-side code).
+      allow delete: if false;
+    }
+
+    // ---------- SERVICES (includes per-service openSlots) ----------
+    match /services/{serviceId} {
+      allow read: if true; // public: book.html needs this with no auth
+      allow write: if hasPerm('services');
+    }
+
+    // ---------- PRODUCTS ----------
+    match /products/{productId} {
+      allow read: if true; // public: order.html needs this with no auth
+      allow write: if hasPerm('products');
+    }
+
+    // ---------- BOOKINGS ----------
+    match /bookings/{bookingId} {
+      // Customers create their own booking, tagged with their anonymous
+      // Auth uid, and can only ever read bookings that carry their uid
+      // (see plan section 2.2.3 — track.html support). Staff with the
+      // bookings permission can read/manage everything.
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read: if hasPerm('bookings')
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if hasPerm('bookings');
+    }
+
+    // ---------- ORDERS ----------
+    match /orders/{orderId} {
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read: if hasPerm('orders')
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if hasPerm('orders');
+    }
+
+    // ---------- ACTIVITY LOG (append-only, owner-only read) ----------
+    match /activityLog/{entryId} {
+      allow read: if isOwner();
+      allow create: if isActiveStaff() && request.resource.data.actorUid == request.auth.uid;
+      allow update, delete: if false; // append-only, no exceptions
+    }
+  }
+}

@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | Emeldaz Unisex Salon &amp; Spa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --beige: #e8dcc8;
+    --beige-light: #f3ece0;
+    --beige-dark: #d8c3a0;
+    --brown-text: #3b2f22;
+    --brown-mid: #6b4f37;
+    --brown-mid-hover: #52392a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: #ffffff;
+    color: #111111;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ---------- NAVBAR (matches index.html) ---------- */
+  .navbar {
+    width: 100%;
+    background: #000000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.25rem;
+    position: relative;
+    z-index: 100;
+    gap: 12px;
+  }
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    flex-shrink: 1;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .navbar img { height: 32px; width: auto; flex-shrink: 0; display: block; }
+  .navbar-brand {
+    font-family: "Dancing Script", "Brush Script MT", cursive;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .navbar-tag {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--brown-text);
+    background: var(--beige);
+    padding: 5px 10px;
+    flex-shrink: 0;
+    display: none;
+  }
+  .menu-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--brown-mid);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .menu-btn span { display: block; width: 20px; height: 2px; background: #fff; transition: transform 0.25s ease, opacity 0.2s ease; }
+  .menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .menu-btn.open span:nth-child(2) { opacity: 0; }
+  .menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu { width: 100%; max-height: 0; overflow: hidden; background: var(--beige-light); transition: max-height 0.35s ease; }
+  .mobile-menu.open { max-height: 400px; }
+  .mobile-menu a { display: block; padding: 16px 22px; font-size: 16px; color: var(--brown-text); text-decoration: none; border-bottom: 1px solid rgba(59,47,34,0.15); }
+  .mobile-menu a:hover { background: var(--beige); }
+
+  .accent-bar { width: 100%; height: 5px; background: var(--brown-mid); }
+
+  /* ---------- ADMIN HEADER STRIP ---------- */
+  .admin-header { width: 100%; background: #000000; padding: 22px 20px; }
+  .admin-header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .admin-header-title { font-family: 'Archivo Black', sans-serif; font-weight: 400; color: #fff; font-size: clamp(18px, 4vw, 26px); letter-spacing: 0.5px; }
+  .admin-header-sub { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 12px; color: var(--beige-dark); }
+  .admin-whoami { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .admin-whoami span { font-family: 'Poppins', sans-serif; font-size: 12px; color: #cfc2ab; }
+  .admin-signout-btn {
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+    color: #fff; background: transparent; border: 1px solid var(--beige-dark); padding: 8px 14px; cursor: pointer;
+  }
+  .admin-signout-btn:hover { background: rgba(255,255,255,0.08); }
+
+  /* ---------- SECTIONS ---------- */
+  .admin-section { width: 100%; padding: 44px 18px; }
+  .admin-section-inner { max-width: 1100px; margin: 0 auto; }
+  .admin-section.alt { background: var(--beige-light); }
+  .admin-section.hidden { display: none; }
+
+  .section-eyebrow { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--brown-mid); margin-bottom: 8px; }
+  .section-heading { font-family: 'Archivo Black', sans-serif; font-weight: 400; color: #000; font-size: clamp(22px, 5vw, 30px); letter-spacing: 0.5px; margin-bottom: 6px; }
+  .section-count { font-family: -apple-system, sans-serif; font-size: 14px; color: #6b6259; margin-bottom: 22px; line-height: 1.5; }
+  .permission-note { font-family: 'Poppins', sans-serif; font-size: 12px; color: #a1291f; background: #fdeceb; border: 1px solid #f2c4c0; padding: 12px 14px; margin-bottom: 20px; }
+
+  /* ---------- TABLES ---------- */
+  .table-wrap { width: 100%; overflow-x: auto; background: #fff; border: 1px solid #e2d9c9; -webkit-overflow-scrolling: touch; }
+  .admin-table { width: 100%; min-width: 740px; border-collapse: collapse; }
+  .admin-table thead th {
+    background: #000; color: #fff; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px;
+    letter-spacing: 1px; text-transform: uppercase; text-align: left; padding: 13px 15px; white-space: nowrap;
+  }
+  .admin-table tbody td { padding: 13px 15px; font-size: 14px; color: #1a1a1a; border-bottom: 1px solid #eee2d1; vertical-align: middle; white-space: nowrap; }
+  .admin-table tbody tr:nth-child(even) { background: #fbf8f2; }
+  .admin-table tbody tr:hover { background: var(--beige-light); }
+  .admin-table tbody tr:last-child td { border-bottom: none; }
+
+  .cell-strong { font-weight: 700; color: #000; }
+  .cell-sub { display: block; font-size: 12px; color: #948a7c; font-weight: 400; }
+  .empty-row td { text-align: center; color: #948a7c; font-style: italic; padding: 26px 16px; }
+
+  /* ---------- STATUS BADGES + SELECTS ---------- */
+  .status-select {
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 8px 10px; border: none; cursor: pointer; color: #fff; background: var(--brown-mid);
+  }
+  .status-select.st-pending { background: #c98a2c; color: #000; }
+  .status-select.st-confirmed, .status-select.st-processing, .status-select.st-in-progress { background: var(--brown-mid); color: #fff; }
+  .status-select.st-completed { background: #000; color: #fff; }
+  .status-select.st-cancelled, .status-select.st-rejected { background: #fff; color: #b00020; box-shadow: inset 0 0 0 1px #b00020; }
+  .status-select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .row-delete-btn {
+    background: none; border: none; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px;
+    letter-spacing: 0.5px; text-transform: uppercase; color: #b00020; cursor: pointer; padding: 6px 4px;
+  }
+  .row-delete-btn:hover { text-decoration: underline; }
+  .row-delete-btn:disabled { color: #ccc; cursor: not-allowed; text-decoration: none; }
+
+  .stock-badge { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; padding: 6px 12px; color: #fff; display: inline-block; }
+  .stock-badge.in-stock { background: var(--brown-mid); }
+  .stock-badge.low-stock { background: #c98a2c; color: #000; }
+  .stock-badge.sold-out { background: #000; }
+
+  /* ---------- FORMS ---------- */
+  .admin-forms-grid { display: grid; grid-template-columns: 1fr; gap: 26px; margin-bottom: 38px; }
+  .admin-form-card { background: #fff; border-top: 4px solid var(--brown-mid); padding: clamp(20px, 5vw, 30px); }
+  .admin-form-card h3 { font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: 18px; color: #000; margin-bottom: 4px; }
+  .admin-form-hint { font-size: 13px; color: #948a7c; margin-bottom: 20px; }
+
+  .form-group { margin-bottom: 18px; }
+  .form-group:last-of-type { margin-bottom: 0; }
+  .form-group label { display: block; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; color: #000; margin-bottom: 7px; }
+  .form-group input[type="text"], .form-group input[type="number"], .form-group input[type="password"],
+  .form-group input[type="tel"], .form-group select, .form-group textarea {
+    width: 100%; border: 1px solid #d8cbb0; background: #fff; padding: 12px 13px; font-size: 15px; color: #000;
+  }
+  .form-group textarea { resize: vertical; min-height: 76px; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid var(--brown-mid); outline-offset: -2px; }
+
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .admin-submit-btn {
+    width: 100%; margin-top: 6px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 1px;
+    text-transform: uppercase; color: #fff; background: var(--brown-mid); border: none; padding: 14px 20px; cursor: pointer;
+  }
+  .admin-submit-btn:hover { background: var(--brown-mid-hover); }
+  .admin-submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .form-cancel-btn {
+    width: 100%; margin-top: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--brown-mid); background: #fff; border: 1px solid var(--brown-mid); padding: 11px 20px; cursor: pointer; display: none;
+  }
+
+  .form-feedback { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; color: var(--brown-mid); margin-top: 12px; min-height: 16px; }
+  .form-feedback.error { color: #b00020; }
+
+  .image-preview-wrap { margin-top: 10px; }
+  .image-preview-wrap img { width: 100%; max-width: 220px; max-height: 150px; object-fit: cover; border: 1px solid #d8cbb0; display: none; }
+  .table-thumb { width: 50px; height: 50px; object-fit: cover; border: 1px solid #e2d9c9; display: block; }
+  .cell-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row-edit-btn {
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--brown-mid); background: #fff; border: 1px solid var(--brown-mid); padding: 8px 12px; cursor: pointer;
+  }
+  .row-edit-btn:hover { background: var(--beige-light); }
+  .row-edit-btn:disabled { color: #ccc; border-color: #ddd; cursor: not-allowed; }
+  .stock-input { width: 66px; border: 1px solid #d8cbb0; padding: 7px; font-size: 14px; }
+
+  /* ---------- PER-SERVICE AVAILABILITY ---------- */
+  .service-jumpbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .service-jump-pill {
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.3px;
+    padding: 9px 16px; border: 1px solid var(--brown-mid); background: #fff; color: var(--brown-mid); cursor: pointer;
+  }
+  .service-jump-pill.active { background: var(--brown-mid); color: #fff; }
+  .availability-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .avail-slot { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.5px; padding: 12px 6px; border: 1px solid #d8cbb0; background: #fff; color: #000; cursor: pointer; text-align: center; }
+  .avail-slot.open { background: var(--brown-mid); border-color: var(--brown-mid); color: #fff; }
+  .avail-slot.closed { background: var(--beige-light); color: #a89b85; text-decoration: line-through; }
+  .avail-slot:disabled { cursor: wait; opacity: 0.6; }
+  @media (min-width: 600px) { .availability-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 900px) { .availability-grid { grid-template-columns: repeat(6, 1fr); } }
+  .availability-legend { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-swatch { width: 18px; height: 18px; border: 1px solid #d8cbb0; flex-shrink: 0; }
+  .legend-swatch-open { background: var(--brown-mid); border-color: var(--brown-mid); }
+  .legend-swatch-closed { background: var(--beige-light); }
+  .legend-label { font-size: 13px; color: #000; }
+
+  /* ---------- STAFF ROSTER ---------- */
+  .staff-permissions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 4px; }
+  .staff-permission-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #000; }
+  .staff-permission-row input { width: 16px; height: 16px; }
+  .owner-flag-badge {
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase;
+    color: #fff; background: var(--brown-mid); padding: 3px 8px; margin-left: 6px;
+  }
+  .inactive-flag-badge {
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase;
+    color: #b00020; background: #fdeceb; border: 1px solid #f2c4c0; padding: 3px 8px; margin-left: 6px;
+  }
+
+  /* ---------- ACTIVITY LOG ---------- */
+  .activity-row-detail { font-size: 12px; color: #948a7c; }
+
+  /* ---------- ADMIN LOCK SCREEN ---------- */
+  .admin-lock-overlay { position: fixed; inset: 0; z-index: 10000; background: #0d0d0d; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .admin-lock-card { width: 100%; max-width: 340px; text-align: center; }
+  .admin-lock-card img { width: 52px; height: 52px; margin-bottom: 16px; }
+  .admin-lock-card h1 { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 19px; letter-spacing: 1px; color: #fff; margin-bottom: 6px; }
+  .admin-lock-card p { font-size: 13px; color: #a0a0a0; margin-bottom: 20px; }
+  .admin-lock-input, .admin-lock-name-input {
+    width: 100%; font-family: 'Poppins', sans-serif; font-weight: 600; padding: 14px 12px; border: 1px solid #333;
+    background: #1a1a1a; color: #fff; border-radius: 2px; margin-bottom: 12px;
+  }
+  .admin-lock-name-input { text-align: left; font-size: 15px; letter-spacing: normal; }
+  .admin-lock-input { text-align: center; letter-spacing: 10px; font-size: 22px; }
+  .admin-lock-input:focus, .admin-lock-name-input:focus { outline: 2px solid var(--beige-dark); outline-offset: -2px; }
+  .admin-lock-remember { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; font-size: 13px; color: #ccc; }
+  .admin-lock-remember input { width: 16px; height: 16px; }
+  .admin-lock-card .admin-submit-btn { margin-top: 18px; background: var(--brown-mid); }
+  .admin-lock-card .admin-submit-btn:hover { background: var(--brown-mid-hover); }
+  .admin-lock-feedback { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; color: #ff8a7a; margin-top: 14px; min-height: 16px; }
+
+  /* ---------- FOOTER ---------- */
+  .admin-footer { width: 100%; background: #000; padding: 26px 24px; text-align: center; }
+  .admin-footer p { font-size: 12px; color: #948a7c; }
+
+  @media (min-width: 700px) { .admin-forms-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .navbar-tag { display: block; } }
+</style>
+</head>
+<body>
+
+<div class="admin-lock-overlay" id="adminLockOverlay">
+  <div class="admin-lock-card">
+    <img src="logo.png" alt="Emeldaz logo">
+    <h1>Staff Access</h1>
+    <p>Enter your name/handle and your code to continue.</p>
+    <form id="adminLockForm">
+      <input type="text" autocomplete="off" class="admin-lock-name-input" id="adminLockHandle" placeholder="Name or handle (e.g. owner)">
+      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" class="admin-lock-input" id="adminLockInput" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;">
+      <label class="admin-lock-remember">
+        <input type="checkbox" id="adminLockRemember">
+        Remember this device
+      </label>
+      <button type="submit" class="admin-submit-btn" id="adminLockSubmit">Unlock</button>
+      <p class="admin-lock-feedback" id="adminLockFeedback"></p>
+    </form>
+  </div>
+</div>
+
+<div id="debugBanner" style="display:none; position:sticky; top:0; z-index:9999; background:#c0392b; color:#fff; font-family:monospace; font-size:12px; padding:10px; white-space:pre-wrap; word-break:break-word;"></div>
+<script>
+  function showDebugError(msg) {
+    var b = document.getElementById('debugBanner');
+    if (!b) return;
+    b.style.display = 'block';
+    b.textContent += (b.textContent ? '\n\n' : '') + msg;
+  }
+  window.addEventListener('error', function (e) {
+    showDebugError('JS ERROR: ' + (e.message || 'unknown') + (e.filename ? ' (' + e.filename + ':' + e.lineno + ')' : ''));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    showDebugError('PROMISE ERROR: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+  });
+</script>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-left" aria-label="Emeldaz home">
+      <img src="logo.png" alt="Emeldaz logo">
+      <span class="navbar-brand">Emeldaz</span>
+    </a>
+    <span class="navbar-tag">Admin Panel</span>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Home</a>
+    <a href="book.html">Book Appointment</a>
+    <a href="order.html">Products</a>
+    <a href="track.html">Track Order</a>
+  </div>
+
+  <div class="accent-bar"></div>
+
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div>
+        <div class="admin-header-title">Admin Dashboard</div>
+        <div class="admin-header-sub">Reservations &middot; Orders &middot; Stock &middot; Staff</div>
+      </div>
+      <div class="admin-whoami" id="adminWhoami" style="display:none;">
+        <span id="adminWhoamiName"></span>
+        <button type="button" class="admin-signout-btn" id="adminSignOutBtn">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ---------- RESERVATIONS ---------- -->
+  <section class="admin-section">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Bookings</p>
+      <h2 class="section-heading">Reservations</h2>
+      <p class="section-count" id="reservationsCount"></p>
+      <p class="permission-note" id="bookingsPermNote" style="display:none;">You can view reservations but don't have permission to change status or remove them.</p>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Customer</th><th>Service(s)</th><th>Date &amp; Time</th><th>Total</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="reservationsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- ORDERS ---------- -->
+  <section class="admin-section alt">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Shop</p>
+      <h2 class="section-heading">Orders</h2>
+      <p class="section-count" id="ordersCount"></p>
+      <p class="permission-note" id="ordersPermNote" style="display:none;">You can view orders but don't have permission to change status or remove them.</p>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Customer</th><th>Item</th><th>Qty</th><th>Total</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- PRODUCTS ---------- -->
+  <section class="admin-section">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Inventory</p>
+      <h2 class="section-heading">Manage Products</h2>
+      <p class="section-count">Upload a photo, description, price and stock count. Changes appear on the Products page instantly.</p>
+      <p class="permission-note" id="productsPermNote" style="display:none;">You don't have permission to add, edit or remove products.</p>
+
+      <div class="admin-forms-grid" id="productFormWrap">
+        <div class="admin-form-card">
+          <h3 id="productFormTitle">Add New Product</h3>
+          <p class="admin-form-hint">Photo, name, description, category, price and stock.</p>
+          <form id="productForm" novalidate>
+            <input type="hidden" id="productId" value="">
+            <div class="form-group">
+              <label for="productName">Product Name</label>
+              <input type="text" id="productName" maxlength="60" required>
+            </div>
+            <div class="form-group">
+              <label for="productDesc">Description</label>
+              <textarea id="productDesc" maxlength="300" required></textarea>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="productCategory">Category</label>
+                <select id="productCategory">
+                  <option value="Hair Care">Hair Care</option>
+                  <option value="Skin Care">Skin Care</option>
+                  <option value="Styling">Styling</option>
+                  <option value="Grooming">Grooming</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="productPrice">Price (&pound;)</label>
+                <input type="number" id="productPrice" min="0" step="0.01" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="productStock">Stock</label>
+              <input type="number" id="productStock" min="0" step="1" required>
+            </div>
+            <div class="form-group">
+              <label for="productImage">Photo</label>
+              <input type="file" id="productImage" accept="image/*">
+              <div class="image-preview-wrap"><img id="productImagePreview" alt="Preview"></div>
+            </div>
+            <button type="submit" class="admin-submit-btn" id="productSubmitBtn">Add Product</button>
+            <button type="button" class="form-cancel-btn" id="productCancelBtn">Cancel Edit</button>
+            <p class="form-feedback" id="productFeedback"></p>
+          </form>
+        </div>
+      </div>
+
+      <p class="section-count" id="productsCount"></p>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th></th><th>Name</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- SERVICES ---------- -->
+  <section class="admin-section alt">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Salon</p>
+      <h2 class="section-heading">Manage Services</h2>
+      <p class="section-count">Photo, description, price, duration. Each service also has its own booking-hours schedule below.</p>
+      <p class="permission-note" id="servicesPermNote" style="display:none;">You don't have permission to add, edit or remove services.</p>
+
+      <div class="admin-forms-grid" id="serviceFormWrap">
+        <div class="admin-form-card">
+          <h3 id="serviceFormTitle">Add New Service</h3>
+          <p class="admin-form-hint">Photo, name, description, price and duration (rounded to 30 min).</p>
+          <form id="serviceForm" novalidate>
+            <input type="hidden" id="serviceId" value="">
+            <div class="form-group">
+              <label for="serviceName">Service Name</label>
+              <input type="text" id="serviceName" maxlength="60" required>
+            </div>
+            <div class="form-group">
+              <label for="serviceDesc">Description</label>
+              <textarea id="serviceDesc" maxlength="300" required></textarea>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="servicePrice">Price (&pound;)</label>
+                <input type="number" id="servicePrice" min="0" step="0.01" required>
+              </div>
+              <div class="form-group">
+                <label for="servicePriceUnit">Price Unit</label>
+                <input type="text" id="servicePriceUnit" maxlength="30" placeholder="Per Service">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="serviceDuration">Duration (minutes)</label>
+              <input type="number" id="serviceDuration" min="30" step="30" value="30" required>
+            </div>
+            <div class="form-group">
+              <label for="serviceImage">Photo</label>
+              <input type="file" id="serviceImage" accept="image/*">
+              <div class="image-preview-wrap"><img id="serviceImagePreview" alt="Preview"></div>
+            </div>
+            <button type="submit" class="admin-submit-btn" id="serviceSubmitBtn">Add Service</button>
+            <button type="button" class="form-cancel-btn" id="serviceCancelBtn">Cancel Edit</button>
+            <p class="form-feedback" id="serviceFeedback"></p>
+          </form>
+        </div>
+      </div>
+
+      <p class="section-count" id="servicesCount"></p>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th></th><th>Name</th><th>Price</th><th>Duration</th><th></th></tr></thead>
+          <tbody id="servicesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- PER-SERVICE AVAILABILITY ---------- -->
+  <section class="admin-section">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Booking Hours</p>
+      <h2 class="section-heading">Manage Availability</h2>
+      <p class="section-count">Each service has its own schedule. Pick a service, then tap a time slot to open or close it, 8am&ndash;8pm in 30-minute steps. Changes save instantly.</p>
+      <p class="permission-note" id="availabilityPermNote" style="display:none;">You don't have permission to change availability.</p>
+      <div class="service-jumpbar" id="availabilityJumpbar"></div>
+      <p class="form-feedback" id="availabilityFeedback"></p>
+      <div class="availability-grid" id="availabilityGrid"></div>
+      <div class="availability-legend">
+        <div class="legend-item"><span class="legend-swatch legend-swatch-open"></span><span class="legend-label">Available</span></div>
+        <div class="legend-item"><span class="legend-swatch legend-swatch-closed"></span><span class="legend-label">Unavailable</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- STAFF ROSTER ---------- -->
+  <section class="admin-section alt" id="staffSection">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Team</p>
+      <h2 class="section-heading">Staff Roster</h2>
+      <p class="section-count">Each staff member signs in with their handle and their own code. Deactivating someone blocks their sign-in without deleting their history.</p>
+      <p class="permission-note" id="staffPermNote" style="display:none;">You don't have permission to manage staff.</p>
+
+      <div class="admin-forms-grid" id="staffFormWrap">
+        <div class="admin-form-card">
+          <h3 id="staffFormTitle">Add New Staff Member</h3>
+          <p class="admin-form-hint">Handle must be unique, lowercase letters/numbers/hyphens only &mdash; it's what they'll type to sign in.</p>
+          <form id="staffForm" novalidate>
+            <input type="hidden" id="staffId" value="">
+            <div class="form-group">
+              <label for="staffName">Full Name</label>
+              <input type="text" id="staffName" maxlength="60" required>
+            </div>
+            <div class="form-group">
+              <label for="staffHandle">Handle</label>
+              <input type="text" id="staffHandle" maxlength="30" pattern="[a-z0-9\-]+" placeholder="e.g. jane" required>
+            </div>
+            <div class="form-group" id="staffCodeGroup">
+              <label for="staffCode">6-Digit Code</label>
+              <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="staffCode" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;">
+            </div>
+            <div class="form-group">
+              <label>Permissions</label>
+              <div class="staff-permissions-grid">
+                <label class="staff-permission-row"><input type="checkbox" id="permBookings"> Manage bookings</label>
+                <label class="staff-permission-row"><input type="checkbox" id="permOrders"> Manage orders</label>
+                <label class="staff-permission-row"><input type="checkbox" id="permProducts"> Manage products</label>
+                <label class="staff-permission-row"><input type="checkbox" id="permServices"> Manage services &amp; hours</label>
+                <label class="staff-permission-row"><input type="checkbox" id="permStaff"> Manage staff</label>
+              </div>
+            </div>
+            <button type="submit" class="admin-submit-btn" id="staffSubmitBtn">Add Staff Member</button>
+            <button type="button" class="form-cancel-btn" id="staffCancelBtn">Cancel Edit</button>
+            <p class="form-feedback" id="staffFeedback"></p>
+          </form>
+        </div>
+      </div>
+
+      <p class="section-count" id="staffCount"></p>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Name</th><th>Handle</th><th>Permissions</th><th>Status</th><th></th></tr></thead>
+          <tbody id="staffBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- MY ACCOUNT ---------- -->
+  <section class="admin-section">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Account</p>
+      <h2 class="section-heading">Change My Code</h2>
+      <p class="section-count">Updates the code for whoever is currently signed in.</p>
+      <div class="admin-forms-grid" style="margin-bottom:0;">
+        <div class="admin-form-card">
+          <form id="changeCodeForm" novalidate>
+            <div class="form-group">
+              <label for="currentCodeInput">Current Code</label>
+              <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="currentCodeInput" required>
+            </div>
+            <div class="form-group">
+              <label for="newCodeInput">New Code</label>
+              <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="newCodeInput" required>
+            </div>
+            <div class="form-group">
+              <label for="confirmCodeInput">Confirm New Code</label>
+              <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="confirmCodeInput" required>
+            </div>
+            <button type="submit" class="admin-submit-btn" id="changeCodeBtn">Update Code</button>
+            <p class="form-feedback" id="changeCodeFeedback"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- ACTIVITY LOG (owner only) ---------- -->
+  <section class="admin-section alt hidden" id="activityLogSection">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Audit Trail</p>
+      <h2 class="section-heading">Activity Log</h2>
+      <p class="section-count" id="activityCount">Owner-only. A running, append-only record of who did what.</p>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Details</th></tr></thead>
+          <tbody id="activityBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="admin-footer">
+    <p>&copy; EMELDAZ UNISEX SALON 2026 &middot; Admin Panel</p>
+  </footer>
+
+  <script type="module">
+    import {
+      db, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy, limit,
+      serverTimestamp, uploadToCloudinary, escapeHtml,
+      auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
+      updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence,
+      browserLocalPersistence, browserSessionPersistence, getSecondaryAuth, disposeSecondaryAuth, setDoc
+    } from './js/firebase-init.js';
+
+    // ============================================================
+    // AUTH MODEL
+    // ------------------------------------------------------------
+    // Every staff member (owner included) is a real individual Firebase Auth
+    // account. The "code" typed at the lock screen IS that account's
+    // password — Firestore rules gate every write on request.auth != null
+    // plus a lookup against this user's /staff/{uid} permissions doc, so
+    // this is enforced server-side, not just hidden/shown in the UI.
+    //
+    // Staff type a name/handle + code, not a raw email. The handle maps
+    // deterministically to an email so sign-in never needs an extra
+    // Firestore read before auth: "owner" -> the fixed owner account,
+    // anything else -> "<handle>@emeldaz-staff.internal" (a fake domain,
+    // never emailed, purely an Auth username).
+    // ============================================================
+    const OWNER_EMAIL = 'emeldazfixed@emeldaz.com';
+    const STAFF_EMAIL_SUFFIX = '@emeldaz-staff.internal';
+
+    function emailForHandle(handleRaw) {
+      const handle = String(handleRaw || '').trim().toLowerCase();
+      if (handle === 'owner') return OWNER_EMAIL;
+      return `${handle}${STAFF_EMAIL_SUFFIX}`;
+    }
+
+    let currentStaff = null; // { id, name, handle, isOwner, active, permissions } once signed in + loaded
+    let staffDocUnsub = null;
+
+    function can(category) {
+      if (!currentStaff || currentStaff.active === false) return false;
+      if (currentStaff.isOwner) return true;
+      return !!(currentStaff.permissions && currentStaff.permissions[category]);
+    }
+
+    async function logActivity(action, details) {
+      if (!currentStaff) return;
+      try {
+        await addDoc(collection(db, 'activityLog'), {
+          actorUid: currentStaff.id,
+          actorName: currentStaff.name || currentStaff.handle || 'Unknown',
+          action,
+          details: details || '',
+          createdAt: serverTimestamp()
+        });
+      } catch (e) {
+        // Non-fatal: the primary action already happened, logging is best-effort.
+      }
+    }
+
+    // ---------- LOCK SCREEN ----------
+    const lockOverlay = document.getElementById('adminLockOverlay');
+    const lockForm = document.getElementById('adminLockForm');
+    const lockHandleInput = document.getElementById('adminLockHandle');
+    const lockInput = document.getElementById('adminLockInput');
+    const lockRemember = document.getElementById('adminLockRemember');
+    const lockFeedback = document.getElementById('adminLockFeedback');
+    const lockSubmit = document.getElementById('adminLockSubmit');
+    const adminWhoami = document.getElementById('adminWhoami');
+    const adminWhoamiName = document.getElementById('adminWhoamiName');
+
+    function unlockAdmin() {
+      lockOverlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    function lockAdmin(message) {
+      lockOverlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      adminWhoami.style.display = 'none';
+      if (message) lockFeedback.textContent = message;
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (staffDocUnsub) { staffDocUnsub(); staffDocUnsub = null; }
+      currentStaff = null;
+
+      if (!user) {
+        lockAdmin();
+        applyPermissionsToUI();
+        return;
+      }
+
+      // Live-listen to this user's own staff doc so permission changes the
+      // owner makes elsewhere apply instantly without a reload.
+      staffDocUnsub = onSnapshot(doc(db, 'staff', user.uid), async (snap) => {
+        if (!snap.exists()) {
+          if (user.email === OWNER_EMAIL) {
+            // First-ever owner sign-in: self-provision the roster doc.
+            try {
+              await setDoc(doc(db, 'staff', user.uid), {
+                name: 'Owner',
+                handle: 'owner',
+                isOwner: true,
+                active: true,
+                permissions: { bookings: true, orders: true, products: true, services: true, staff: true },
+                createdAt: serverTimestamp(),
+                createdBy: user.uid
+              });
+            } catch (e) {
+              lockFeedback.textContent = `Couldn't set up owner account: ${e.message}`;
+            }
+            return; // onSnapshot will fire again once the doc exists
+          }
+          // A staff Auth account exists but its Firestore roster doc doesn't
+          // (removed, or created outside the app) — treat as not provisioned.
+          signOut(auth);
+          lockAdmin("Your account isn't fully set up. Ask the owner to add you again.");
+          return;
+        }
+
+        const data = snap.data();
+        if (data.active === false) {
+          signOut(auth);
+          lockAdmin('Your access has been deactivated.');
+          return;
+        }
+
+        currentStaff = { id: user.uid, ...data };
+        unlockAdmin();
+        adminWhoami.style.display = 'flex';
+        adminWhoamiName.textContent = `${data.name || data.handle}${data.isOwner ? ' (Owner)' : ''}`;
+        applyPermissionsToUI();
+      }, (err) => {
+        lockFeedback.textContent = `Couldn't load your account: ${err.message}`;
+      });
+    });
+
+    lockForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const handle = lockHandleInput.value.trim();
+      const code = lockInput.value.trim();
+      if (!handle) {
+        lockFeedback.textContent = 'Enter your name or handle.';
+        return;
+      }
+      if (!/^\d{6}$/.test(code)) {
+        lockFeedback.textContent = 'Enter your 6-digit code.';
+        return;
+      }
+      lockSubmit.disabled = true;
+      lockSubmit.textContent = 'Checking...';
+      lockFeedback.textContent = '';
+      try {
+        await setPersistence(auth, lockRemember.checked ? browserLocalPersistence : browserSessionPersistence);
+        await signInWithEmailAndPassword(auth, emailForHandle(handle), code);
+        lockForm.reset();
+      } catch (err) {
+        lockFeedback.textContent = 'Incorrect handle or code.';
+        lockInput.value = '';
+        lockInput.focus();
+      } finally {
+        lockSubmit.disabled = false;
+        lockSubmit.textContent = 'Unlock';
+      }
+    });
+
+    document.getElementById('adminSignOutBtn').addEventListener('click', () => signOut(auth));
+
+    // ---------- CHANGE MY CODE (self-service, any signed-in staff) ----------
+    const changeCodeForm = document.getElementById('changeCodeForm');
+    const currentCodeInput = document.getElementById('currentCodeInput');
+    const newCodeInput = document.getElementById('newCodeInput');
+    const confirmCodeInput = document.getElementById('confirmCodeInput');
+    const changeCodeFeedback = document.getElementById('changeCodeFeedback');
+    const changeCodeBtn = document.getElementById('changeCodeBtn');
+
+    changeCodeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      changeCodeFeedback.classList.remove('error');
+      if (!auth.currentUser) return;
+      const current = currentCodeInput.value.trim();
+      const a = newCodeInput.value.trim();
+      const b = confirmCodeInput.value.trim();
+      if (!/^\d{6}$/.test(current) || !/^\d{6}$/.test(a)) {
+        changeCodeFeedback.classList.add('error');
+        changeCodeFeedback.textContent = 'Codes must be exactly 6 digits.';
+        return;
+      }
+      if (a !== b) {
+        changeCodeFeedback.classList.add('error');
+        changeCodeFeedback.textContent = "New codes don't match.";
+        return;
+      }
+      changeCodeBtn.disabled = true;
+      changeCodeBtn.textContent = 'Updating...';
+      try {
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, current);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        await updatePassword(auth.currentUser, a);
+        changeCodeFeedback.textContent = 'Code updated.';
+        changeCodeForm.reset();
+        logActivity('account.change_code', 'Changed their own code');
+      } catch (err) {
+        changeCodeFeedback.classList.add('error');
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+          changeCodeFeedback.textContent = 'Current code is incorrect.';
+        } else {
+          changeCodeFeedback.textContent = `Couldn't update code: ${err.message}`;
+        }
+      } finally {
+        changeCodeBtn.disabled = false;
+        changeCodeBtn.textContent = 'Update Code';
+      }
+    });
+
+    // ---------- MOBILE MENU ----------
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (menuBtn && mobileMenu) {
+      menuBtn.addEventListener('click', () => {
+        const isOpen = mobileMenu.classList.toggle('open');
+        menuBtn.classList.toggle('open', isOpen);
+        menuBtn.setAttribute('aria-expanded', isOpen);
+      });
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.remove('open');
+          menuBtn.classList.remove('open');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
+    // ============================================================
+    // PERMISSION-GATED UI
+    // ============================================================
+    function applyPermissionsToUI() {
+      // Bookings
+      const bookingsOk = can('bookings');
+      document.getElementById('bookingsPermNote').style.display = currentStaff && !bookingsOk ? 'block' : 'none';
+      document.querySelectorAll('#reservationsBody select, #reservationsBody .row-delete-btn').forEach(el => el.disabled = !bookingsOk);
+
+      // Orders
+      const ordersOk = can('orders');
+      document.getElementById('ordersPermNote').style.display = currentStaff && !ordersOk ? 'block' : 'none';
+      document.querySelectorAll('#ordersBody select, #ordersBody .row-delete-btn').forEach(el => el.disabled = !ordersOk);
+
+      // Products
+      const productsOk = can('products');
+      document.getElementById('productsPermNote').style.display = currentStaff && !productsOk ? 'block' : 'none';
+      document.getElementById('productFormWrap').style.display = productsOk ? '' : 'none';
+      document.querySelectorAll('#productsBody .row-edit-btn, #productsBody .row-delete-btn, #productsBody .stock-input').forEach(el => el.disabled = !productsOk);
+
+      // Services + availability share the same permission
+      const servicesOk = can('services');
+      document.getElementById('servicesPermNote').style.display = currentStaff && !servicesOk ? 'block' : 'none';
+      document.getElementById('serviceFormWrap').style.display = servicesOk ? '' : 'none';
+      document.querySelectorAll('#servicesBody .row-edit-btn, #servicesBody .row-delete-btn').forEach(el => el.disabled = !servicesOk);
+      document.getElementById('availabilityPermNote').style.display = currentStaff && !servicesOk ? 'block' : 'none';
+      document.querySelectorAll('.avail-slot').forEach(el => el.disabled = !servicesOk);
+
+      // Staff roster: whole section hidden unless owner or explicit staff permission
+      const staffSectionOk = currentStaff && (currentStaff.isOwner || can('staff'));
+      document.getElementById('staffSection').classList.toggle('hidden', !staffSectionOk);
+
+      // Activity log: owner only, section hidden entirely otherwise
+      document.getElementById('activityLogSection').classList.toggle('hidden', !(currentStaff && currentStaff.isOwner));
+    }
+
+    // ============================================================
+    // RESERVATIONS (bookings collection)
+    // ============================================================
+    const bookingsCol = collection(db, 'bookings');
+    const reservationsBody = document.getElementById('reservationsBody');
+    const reservationsCount = document.getElementById('reservationsCount');
+    const RES_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
+    let reservationsCache = [];
+
+    function formatBookingDateTime(b) {
+      if (!b.date || !b.time) return '';
+      const [y, m, d] = b.date.split('-').map(Number);
+      const [h, min] = b.time.split(':').map(Number);
+      const dt = new Date(y, (m || 1) - 1, d || 1, h || 0, min || 0);
+      const dateLabel = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      const timeLabel = dt.toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' });
+      return `${dateLabel}, ${timeLabel}`;
+    }
+
+    function renderReservations() {
+      reservationsCount.textContent = `${reservationsCache.length} reservation${reservationsCache.length === 1 ? '' : 's'}`;
+      reservationsBody.innerHTML = '';
+      if (reservationsCache.length === 0) {
+        reservationsBody.innerHTML = '<tr class="empty-row"><td colspan="6">No reservations yet.</td></tr>';
+        return;
+      }
+      const bookingsOk = can('bookings');
+      reservationsCache.forEach(r => {
+        const status = r.status || 'pending';
+        const serviceNames = Array.isArray(r.services) ? r.services.map(s => s.name).join(', ') : (r.services || '');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(r.customerName || '')}<span class="cell-sub">${escapeHtml(r.customerPhone || '')}</span></td>
+          <td>${escapeHtml(serviceNames)}</td>
+          <td>${formatBookingDateTime(r)}</td>
+          <td class="cell-strong">&pound;${Number(r.totalPrice || 0).toFixed(2)}</td>
+          <td>
+            <select class="status-select st-${status}" data-id="${r.id}" ${bookingsOk ? '' : 'disabled'}>
+              ${RES_STATUSES.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
+            </select>
+          </td>
+          <td><button type="button" class="row-delete-btn" data-id="${r.id}" ${bookingsOk ? '' : 'disabled'}>Remove</button></td>
+        `;
+        reservationsBody.appendChild(tr);
+      });
+    }
+
+    onSnapshot(query(bookingsCol, orderBy('createdAt', 'desc')), (snap) => {
+      reservationsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderReservations();
+    }, (err) => {
+      reservationsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load reservations: ${err.message}</td></tr>`;
+    });
+
+    reservationsBody.addEventListener('change', async (e) => {
+      if (!e.target.matches('select') || !can('bookings')) return;
+      const id = e.target.dataset.id;
+      const newStatus = e.target.value;
+      try {
+        await updateDoc(doc(db, 'bookings', id), { status: newStatus });
+        logActivity('booking.status', `Set reservation ${id} to ${newStatus}`);
+      } catch (err) {
+        alert(`Couldn't update status: ${err.message}`);
+      }
+    });
+
+    reservationsBody.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('row-delete-btn') || !can('bookings')) return;
+      const id = e.target.dataset.id;
+      if (!confirm('Remove this reservation?')) return;
+      try {
+        await deleteDoc(doc(db, 'bookings', id));
+        logActivity('booking.delete', `Removed reservation ${id}`);
+      } catch (err) {
+        alert(`Couldn't delete: ${err.message}`);
+      }
+    });
+
+    // ============================================================
+    // ORDERS (orders collection)
+    // ============================================================
+    const ordersCol = collection(db, 'orders');
+    const ordersBody = document.getElementById('ordersBody');
+    const ordersCount = document.getElementById('ordersCount');
+    const ORDER_STATUSES = ['pending', 'in-progress', 'completed', 'rejected', 'cancelled'];
+    let ordersCache = [];
+
+    function statusLabel(s) { return s.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+
+    function renderOrders() {
+      ordersCount.textContent = `${ordersCache.length} order${ordersCache.length === 1 ? '' : 's'}`;
+      ordersBody.innerHTML = '';
+      if (ordersCache.length === 0) {
+        ordersBody.innerHTML = '<tr class="empty-row"><td colspan="6">No orders yet.</td></tr>';
+        return;
+      }
+      const ordersOk = can('orders');
+      ordersCache.forEach(o => {
+        const status = o.status || 'pending';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(o.customerName || '')}<span class="cell-sub">${escapeHtml(o.customerPhone || '')}</span></td>
+          <td>${escapeHtml(o.productName || '')}</td>
+          <td>${escapeHtml(String(o.qty || ''))}</td>
+          <td class="cell-strong">&pound;${Number(o.total || 0).toFixed(2)}</td>
+          <td>
+            <select class="status-select st-${status}" data-id="${o.id}" ${ordersOk ? '' : 'disabled'}>
+              ${ORDER_STATUSES.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${statusLabel(s)}</option>`).join('')}
+            </select>
+          </td>
+          <td><button type="button" class="row-delete-btn" data-id="${o.id}" ${ordersOk ? '' : 'disabled'}>Remove</button></td>
+        `;
+        ordersBody.appendChild(tr);
+      });
+    }
+
+    onSnapshot(query(ordersCol, orderBy('createdAt', 'desc')), (snap) => {
+      ordersCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderOrders();
+    }, (err) => {
+      ordersBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load orders: ${err.message}</td></tr>`;
+    });
+
+    ordersBody.addEventListener('change', async (e) => {
+      if (!e.target.matches('select') || !can('orders')) return;
+      const id = e.target.dataset.id;
+      const newStatus = e.target.value;
+      try {
+        await updateDoc(doc(db, 'orders', id), { status: newStatus });
+        logActivity('order.status', `Set order ${id} to ${newStatus}`);
+      } catch (err) {
+        alert(`Couldn't update status: ${err.message}`);
+      }
+    });
+
+    ordersBody.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('row-delete-btn') || !can('orders')) return;
+      const id = e.target.dataset.id;
+      if (!confirm('Remove this order?')) return;
+      try {
+        await deleteDoc(doc(db, 'orders', id));
+        logActivity('order.delete', `Removed order ${id}`);
+      } catch (err) {
+        alert(`Couldn't delete: ${err.message}`);
+      }
+    });
+
+    // ============================================================
+    // SHARED: image preview wiring
+    // ============================================================
+    function wireImagePreview(input, previewImg) {
+      input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) { previewImg.style.display = 'none'; return; }
+        const reader = new FileReader();
+        reader.onload = (e) => { previewImg.src = e.target.result; previewImg.style.display = 'block'; };
+        reader.readAsDataURL(file);
+      });
+    }
+    function showFeedback(el, msg, isError) {
+      el.textContent = msg;
+      el.classList.toggle('error', !!isError);
+    }
+
+    // ============================================================
+    // PRODUCTS
+    // ============================================================
+    const productsCol = collection(db, 'products');
+    const productsBody = document.getElementById('productsBody');
+    const productsCount = document.getElementById('productsCount');
+    const productForm = document.getElementById('productForm');
+    const productIdInput = document.getElementById('productId');
+    const productFormTitle = document.getElementById('productFormTitle');
+    const productSubmitBtn = document.getElementById('productSubmitBtn');
+    const productCancelBtn = document.getElementById('productCancelBtn');
+    const productFeedback = document.getElementById('productFeedback');
+    const productNameInput = document.getElementById('productName');
+    const productDescInput = document.getElementById('productDesc');
+    const productCategoryInput = document.getElementById('productCategory');
+    const productPriceInput = document.getElementById('productPrice');
+    const productStockInput = document.getElementById('productStock');
+    const productImageInput = document.getElementById('productImage');
+    const productImagePreview = document.getElementById('productImagePreview');
+    wireImagePreview(productImageInput, productImagePreview);
+    let productsCache = [];
+
+    function stockBadge(stock) {
+      const n = Number(stock) || 0;
+      if (n <= 0) return `<span class="stock-badge sold-out">Sold Out</span>`;
+      if (n <= 5) return `<span class="stock-badge low-stock">${n} left</span>`;
+      return `<span class="stock-badge in-stock">${n} in stock</span>`;
+    }
+
+    function renderProducts() {
+      productsCount.textContent = `${productsCache.length} product${productsCache.length === 1 ? '' : 's'} listed`;
+      productsBody.innerHTML = '';
+      if (productsCache.length === 0) {
+        productsBody.innerHTML = '<tr class="empty-row"><td colspan="5">No products yet. Add one above.</td></tr>';
+        return;
+      }
+      const productsOk = can('products');
+      productsCache.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.imageUrl ? `<img class="table-thumb" src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}">` : ''}</td>
+          <td class="cell-strong">${escapeHtml(p.name)}<span class="cell-sub">${escapeHtml(p.category || '')}</span></td>
+          <td>&pound;${Number(p.price).toFixed(2)}</td>
+          <td><input type="number" class="stock-input" data-id="${p.id}" value="${Number(p.stock) || 0}" min="0" ${productsOk ? '' : 'disabled'}>${stockBadge(p.stock)}</td>
+          <td class="cell-actions">
+            <button type="button" class="row-edit-btn" data-id="${p.id}" ${productsOk ? '' : 'disabled'}>Edit</button>
+            <button type="button" class="row-delete-btn" data-id="${p.id}" ${productsOk ? '' : 'disabled'}>Remove</button>
+          </td>
+        `;
+        productsBody.appendChild(tr);
+      });
+    }
+
+    onSnapshot(query(productsCol, orderBy('createdAt', 'desc')), (snap) => {
+      productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderProducts();
+    }, (err) => {
+      productsBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load products: ${err.message}</td></tr>`;
+    });
+
+    function resetProductForm() {
+      productForm.reset();
+      productIdInput.value = '';
+      productFormTitle.textContent = 'Add New Product';
+      productSubmitBtn.textContent = 'Add Product';
+      productCancelBtn.style.display = 'none';
+      productImagePreview.style.display = 'none';
+    }
+    productCancelBtn.addEventListener('click', resetProductForm);
+
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!can('products')) return;
+      const name = productNameInput.value.trim();
+      const description = productDescInput.value.trim();
+      const category = productCategoryInput.value;
+      const price = parseFloat(productPriceInput.value);
+      const stock = parseInt(productStockInput.value, 10);
+      const editingId = productIdInput.value;
+      const file = productImageInput.files[0];
+
+      if (!name || !description || isNaN(price) || price < 0 || isNaN(stock) || stock < 0) return;
+      if (!editingId && !file) { showFeedback(productFeedback, 'Please choose a photo for the product.', true); return; }
+
+      productSubmitBtn.disabled = true;
+      productSubmitBtn.textContent = file ? 'Uploading photo...' : 'Saving...';
+      try {
+        let imageUrl = null;
+        if (file) imageUrl = await uploadToCloudinary(file);
+        if (editingId) {
+          const updateData = { name, description, category, price, stock };
+          if (imageUrl) updateData.imageUrl = imageUrl;
+          await updateDoc(doc(db, 'products', editingId), updateData);
+          showFeedback(productFeedback, `${name} updated.`);
+          logActivity('product.update', `Updated product "${name}"`);
+        } else {
+          await addDoc(productsCol, { name, description, category, price, stock, imageUrl, createdAt: serverTimestamp() });
+          showFeedback(productFeedback, `${name} added to products.`);
+          logActivity('product.create', `Added product "${name}"`);
+        }
+        resetProductForm();
+      } catch (err) {
+        showFeedback(productFeedback, err.message || 'Something went wrong.', true);
+      } finally {
+        productSubmitBtn.disabled = false;
+        productSubmitBtn.textContent = editingId ? 'Update Product' : 'Add Product';
+      }
+    });
+
+    productsBody.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('row-edit-btn')) {
+        if (!can('products')) return;
+        const p = productsCache.find(x => x.id === e.target.dataset.id);
+        if (!p) return;
+        productIdInput.value = p.id;
+        productNameInput.value = p.name;
+        productDescInput.value = p.description || '';
+        productCategoryInput.value = p.category || 'Hair Care';
+        productPriceInput.value = p.price;
+        productStockInput.value = p.stock;
+        productImagePreview.src = p.imageUrl || '';
+        productImagePreview.style.display = p.imageUrl ? 'block' : 'none';
+        productFormTitle.textContent = `Editing: ${p.name}`;
+        productSubmitBtn.textContent = 'Update Product';
+        productCancelBtn.style.display = 'block';
+        productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (e.target.classList.contains('row-delete-btn')) {
+        if (!can('products')) return;
+        const id = e.target.dataset.id;
+        const p = productsCache.find(x => x.id === id);
+        if (!confirm('Remove this product?')) return;
+        try {
+          await deleteDoc(doc(db, 'products', id));
+          logActivity('product.delete', `Removed product "${p ? p.name : id}"`);
+        } catch (err) {
+          showFeedback(productFeedback, `Couldn't delete: ${err.message}`, true);
+        }
+      }
+    });
+
+    productsBody.addEventListener('change', async (e) => {
+      if (!e.target.classList.contains('stock-input') || !can('products')) return;
+      const id = e.target.dataset.id;
+      const newStock = parseInt(e.target.value, 10);
+      if (isNaN(newStock) || newStock < 0) return;
+      try {
+        await updateDoc(doc(db, 'products', id), { stock: newStock });
+        logActivity('product.stock', `Set stock for ${id} to ${newStock}`);
+      } catch (err) {
+        showFeedback(productFeedback, `Couldn't update stock: ${err.message}`, true);
+      }
+    });
+
+    // ============================================================
+    // SERVICES (+ per-service availability)
+    // ============================================================
+    const servicesCol = collection(db, 'services');
+    const servicesBody = document.getElementById('servicesBody');
+    const servicesCount = document.getElementById('servicesCount');
+    const serviceForm = document.getElementById('serviceForm');
+    const serviceIdInput = document.getElementById('serviceId');
+    const serviceFormTitle = document.getElementById('serviceFormTitle');
+    const serviceSubmitBtn = document.getElementById('serviceSubmitBtn');
+    const serviceCancelBtn = document.getElementById('serviceCancelBtn');
+    const serviceFeedback = document.getElementById('serviceFeedback');
+    const serviceNameInput = document.getElementById('serviceName');
+    const serviceDescInput = document.getElementById('serviceDesc');
+    const servicePriceInput = document.getElementById('servicePrice');
+    const servicePriceUnitInput = document.getElementById('servicePriceUnit');
+    const serviceDurationInput = document.getElementById('serviceDuration');
+    const serviceImageInput = document.getElementById('serviceImage');
+    const serviceImagePreview = document.getElementById('serviceImagePreview');
+    wireImagePreview(serviceImageInput, serviceImagePreview);
+    let servicesCache = [];
+
+    function renderServices() {
+      servicesCount.textContent = `${servicesCache.length} service${servicesCache.length === 1 ? '' : 's'} listed`;
+      servicesBody.innerHTML = '';
+      if (servicesCache.length === 0) {
+        servicesBody.innerHTML = '<tr class="empty-row"><td colspan="5">No services yet. Add one above.</td></tr>';
+      } else {
+        const servicesOk = can('services');
+        servicesCache.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${s.imageUrl ? `<img class="table-thumb" src="${escapeHtml(s.imageUrl)}" alt="${escapeHtml(s.name)}">` : ''}</td>
+            <td class="cell-strong">${escapeHtml(s.name)}</td>
+            <td>&pound;${Number(s.price).toFixed(2)} <span class="cell-sub">${escapeHtml(s.priceUnit || '')}</span></td>
+            <td>${s.duration || 30} min</td>
+            <td class="cell-actions">
+              <button type="button" class="row-edit-btn" data-id="${s.id}" ${servicesOk ? '' : 'disabled'}>Edit</button>
+              <button type="button" class="row-delete-btn" data-id="${s.id}" ${servicesOk ? '' : 'disabled'}>Remove</button>
+            </td>
+          `;
+          servicesBody.appendChild(tr);
+        });
+      }
+      renderAvailabilityJumpbar();
+    }
+
+    onSnapshot(query(servicesCol, orderBy('createdAt', 'desc')), (snap) => {
+      servicesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderServices();
+    }, (err) => {
+      servicesBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load services: ${err.message}</td></tr>`;
+    });
+
+    function resetServiceForm() {
+      serviceForm.reset();
+      serviceIdInput.value = '';
+      serviceFormTitle.textContent = 'Add New Service';
+      serviceSubmitBtn.textContent = 'Add Service';
+      serviceCancelBtn.style.display = 'none';
+      serviceImagePreview.style.display = 'none';
+      serviceDurationInput.value = 30;
+    }
+    serviceCancelBtn.addEventListener('click', resetServiceForm);
+
+    serviceForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!can('services')) return;
+      const name = serviceNameInput.value.trim();
+      const description = serviceDescInput.value.trim();
+      const price = parseFloat(servicePriceInput.value);
+      const priceUnit = servicePriceUnitInput.value.trim() || 'Per Service';
+      let duration = parseInt(serviceDurationInput.value, 10);
+      const editingId = serviceIdInput.value;
+      const file = serviceImageInput.files[0];
+
+      if (!name || !description || isNaN(price) || price < 0) return;
+      if (isNaN(duration) || duration < 30) duration = 30;
+      duration = Math.round(duration / 30) * 30;
+      if (!editingId && !file) { showFeedback(serviceFeedback, 'Please choose a photo for the service.', true); return; }
+
+      serviceSubmitBtn.disabled = true;
+      serviceSubmitBtn.textContent = file ? 'Uploading photo...' : 'Saving...';
+      try {
+        let imageUrl = null;
+        if (file) imageUrl = await uploadToCloudinary(file);
+        if (editingId) {
+          const updateData = { name, description, price, priceUnit, duration };
+          if (imageUrl) updateData.imageUrl = imageUrl;
+          await updateDoc(doc(db, 'services', editingId), updateData);
+          showFeedback(serviceFeedback, `${name} updated.`);
+          logActivity('service.update', `Updated service "${name}"`);
+        } else {
+          // New services start with every slot open (see availability grid
+          // fallback below); openSlots is only written once the owner/staff
+          // first toggles a slot for this service.
+          await addDoc(servicesCol, { name, description, price, priceUnit, duration, imageUrl, createdAt: serverTimestamp() });
+          showFeedback(serviceFeedback, `${name} added to services.`);
+          logActivity('service.create', `Added service "${name}"`);
+        }
+        resetServiceForm();
+      } catch (err) {
+        showFeedback(serviceFeedback, err.message || 'Something went wrong.', true);
+      } finally {
+        serviceSubmitBtn.disabled = false;
+        serviceSubmitBtn.textContent = editingId ? 'Update Service' : 'Add Service';
+      }
+    });
+
+    servicesBody.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('row-edit-btn')) {
+        if (!can('services')) return;
+        const s = servicesCache.find(x => x.id === e.target.dataset.id);
+        if (!s) return;
+        serviceIdInput.value = s.id;
+        serviceNameInput.value = s.name;
+        serviceDescInput.value = s.description || '';
+        servicePriceInput.value = s.price;
+        servicePriceUnitInput.value = s.priceUnit || '';
+        serviceDurationInput.value = s.duration || 30;
+        serviceImagePreview.src = s.imageUrl || '';
+        serviceImagePreview.style.display = s.imageUrl ? 'block' : 'none';
+        serviceFormTitle.textContent = `Editing: ${s.name}`;
+        serviceSubmitBtn.textContent = 'Update Service';
+        serviceCancelBtn.style.display = 'block';
+        serviceForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (e.target.classList.contains('row-delete-btn')) {
+        if (!can('services')) return;
+        const id = e.target.dataset.id;
+        const s = servicesCache.find(x => x.id === id);
+        if (!confirm('Remove this service?')) return;
+        try {
+          await deleteDoc(doc(db, 'services', id));
+          logActivity('service.delete', `Removed service "${s ? s.name : id}"`);
+        } catch (err) {
+          showFeedback(serviceFeedback, `Couldn't delete: ${err.message}`, true);
+        }
+      }
+    });
+
+    // ---------- PER-SERVICE AVAILABILITY ----------
+    const availabilityJumpbar = document.getElementById('availabilityJumpbar');
+    const availabilityGrid = document.getElementById('availabilityGrid');
+    const availabilityFeedback = document.getElementById('availabilityFeedback');
+
+    const ALL_SLOTS = [];
+    for (let m = 8 * 60; m < 20 * 60; m += 30) {
+      const h = Math.floor(m / 60), mm = m % 60;
+      ALL_SLOTS.push(`${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`);
+    }
+    function slotLabel(key) {
+      const [h, m] = key.split(':').map(Number);
+      const period = h >= 12 ? 'PM' : 'AM';
+      let displayHour = h % 12; if (displayHour === 0) displayHour = 12;
+      return `${displayHour}:${String(m).padStart(2, '0')} ${period}`;
+    }
+
+    let selectedServiceId = null;
+
+    function renderAvailabilityJumpbar() {
+      if (servicesCache.length === 0) {
+        selectedServiceId = null;
+        availabilityJumpbar.innerHTML = '';
+        availabilityGrid.innerHTML = '';
+        availabilityFeedback.textContent = 'Add a service first to set its hours.';
+        return;
+      }
+      if (!selectedServiceId || !servicesCache.some(s => s.id === selectedServiceId)) {
+        selectedServiceId = servicesCache[0].id;
+      }
+      availabilityFeedback.textContent = '';
+      availabilityJumpbar.innerHTML = servicesCache.map(s => `
+        <button type="button" class="service-jump-pill ${s.id === selectedServiceId ? 'active' : ''}" data-id="${s.id}">${escapeHtml(s.name)}</button>
+      `).join('');
+      renderAvailabilityGrid();
+    }
+
+    function renderAvailabilityGrid() {
+      const service = servicesCache.find(s => s.id === selectedServiceId);
+      if (!service) { availabilityGrid.innerHTML = ''; return; }
+      // No openSlots field yet on this service = everything open by default.
+      const openSlots = Array.isArray(service.openSlots) ? new Set(service.openSlots) : new Set(ALL_SLOTS);
+      const servicesOk = can('services');
+      availabilityGrid.innerHTML = ALL_SLOTS.map(key => {
+        const isOpen = openSlots.has(key);
+        return `<button type="button" class="avail-slot ${isOpen ? 'open' : 'closed'}" data-slot="${key}" ${servicesOk ? '' : 'disabled'}>${slotLabel(key)}</button>`;
+      }).join('');
+    }
+
+    availabilityJumpbar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.service-jump-pill');
+      if (!btn) return;
+      selectedServiceId = btn.dataset.id;
+      renderAvailabilityJumpbar();
+    });
+
+    availabilityGrid.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.avail-slot');
+      if (!btn || !can('services') || !selectedServiceId) return;
+      const service = servicesCache.find(s => s.id === selectedServiceId);
+      if (!service) return;
+      const current = Array.isArray(service.openSlots) ? new Set(service.openSlots) : new Set(ALL_SLOTS);
+      const key = btn.dataset.slot;
+      current.has(key) ? current.delete(key) : current.add(key);
+      btn.disabled = true;
+      try {
+        await updateDoc(doc(db, 'services', selectedServiceId), { openSlots: Array.from(current) });
+        logActivity('service.availability', `Toggled ${key} for "${service.name}"`);
+      } catch (err) {
+        showFeedback(availabilityFeedback, `Couldn't save: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // ============================================================
+    // STAFF ROSTER
+    // ============================================================
+    const staffCol = collection(db, 'staff');
+    const staffBody = document.getElementById('staffBody');
+    const staffCount = document.getElementById('staffCount');
+    const staffForm = document.getElementById('staffForm');
+    const staffIdInput = document.getElementById('staffId');
+    const staffFormTitle = document.getElementById('staffFormTitle');
+    const staffSubmitBtn = document.getElementById('staffSubmitBtn');
+    const staffCancelBtn = document.getElementById('staffCancelBtn');
+    const staffFeedback = document.getElementById('staffFeedback');
+    const staffNameInput = document.getElementById('staffName');
+    const staffHandleInput = document.getElementById('staffHandle');
+    const staffCodeInput = document.getElementById('staffCode');
+    const staffCodeGroup = document.getElementById('staffCodeGroup');
+    const permBookings = document.getElementById('permBookings');
+    const permOrders = document.getElementById('permOrders');
+    const permProducts = document.getElementById('permProducts');
+    const permServices = document.getElementById('permServices');
+    const permStaff = document.getElementById('permStaff');
+    let staffCache = [];
+
+    const PERM_LABELS = { bookings: 'Bookings', orders: 'Orders', products: 'Products', services: 'Services', staff: 'Staff' };
+
+    function renderStaff() {
+      staffCount.textContent = `${staffCache.length} staff member${staffCache.length === 1 ? '' : 's'}`;
+      staffBody.innerHTML = '';
+      if (staffCache.length === 0) {
+        staffBody.innerHTML = '<tr class="empty-row"><td colspan="5">No staff yet.</td></tr>';
+        return;
+      }
+      staffCache.forEach(s => {
+        const perms = s.isOwner ? 'All (Owner)' : Object.entries(s.permissions || {}).filter(([, v]) => v).map(([k]) => PERM_LABELS[k] || k).join(', ') || 'None';
+        const isSelf = currentStaff && s.id === currentStaff.id;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="cell-strong">${escapeHtml(s.name)}${s.isOwner ? '<span class="owner-flag-badge">Owner</span>' : ''}${s.active === false ? '<span class="inactive-flag-badge">Inactive</span>' : ''}</td>
+          <td>@${escapeHtml(s.handle)}</td>
+          <td>${escapeHtml(perms)}</td>
+          <td>${s.active === false ? 'Inactive' : 'Active'}</td>
+          <td class="cell-actions">
+            <button type="button" class="row-edit-btn" data-id="${s.id}">Edit</button>
+            ${s.isOwner ? '' : `<button type="button" class="row-edit-btn" data-toggle-id="${s.id}" ${isSelf ? 'disabled' : ''}>${s.active === false ? 'Activate' : 'Deactivate'}</button>`}
+          </td>
+        `;
+        staffBody.appendChild(tr);
+      });
+    }
+
+    onSnapshot(query(staffCol, orderBy('createdAt', 'desc')), (snap) => {
+      staffCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderStaff();
+    }, (err) => {
+      staffBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load staff: ${err.message}</td></tr>`;
+    });
+
+    function resetStaffForm() {
+      staffForm.reset();
+      staffIdInput.value = '';
+      staffFormTitle.textContent = 'Add New Staff Member';
+      staffSubmitBtn.textContent = 'Add Staff Member';
+      staffCancelBtn.style.display = 'none';
+      staffHandleInput.disabled = false;
+      staffCodeGroup.style.display = 'block';
+      staffCodeInput.required = true;
+    }
+    staffCancelBtn.addEventListener('click', resetStaffForm);
+
+    staffForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!can('staff')) return;
+      const name = staffNameInput.value.trim();
+      const handle = staffHandleInput.value.trim().toLowerCase();
+      const code = staffCodeInput.value.trim();
+      const editingId = staffIdInput.value;
+      const permissions = {
+        bookings: permBookings.checked,
+        orders: permOrders.checked,
+        products: permProducts.checked,
+        services: permServices.checked,
+        staff: permStaff.checked
+      };
+
+      if (!name) { showFeedback(staffFeedback, 'Enter a name.', true); return; }
+      if (!/^[a-z0-9\-]+$/.test(handle) || handle === 'owner') {
+        showFeedback(staffFeedback, "Handle must be lowercase letters/numbers/hyphens, and can't be 'owner'.", true);
+        return;
+      }
+
+      staffSubmitBtn.disabled = true;
+
+      if (editingId) {
+        // Editing: name + permissions only. Handle and code are immutable
+        // here — code changes are self-service only (see "Change My Code").
+        staffSubmitBtn.textContent = 'Saving...';
+        try {
+          await updateDoc(doc(db, 'staff', editingId), { name, permissions });
+          showFeedback(staffFeedback, `${name} updated.`);
+          logActivity('staff.update', `Updated staff member "${name}"`);
+          resetStaffForm();
+        } catch (err) {
+          showFeedback(staffFeedback, err.message || 'Something went wrong.', true);
+        } finally {
+          staffSubmitBtn.disabled = false;
+          staffSubmitBtn.textContent = 'Update Staff Member';
+        }
+        return;
+      }
+
+      // Creating: needs a code, and a brand-new Firebase Auth account.
+      if (!/^\d{6}$/.test(code)) {
+        showFeedback(staffFeedback, 'Enter a 6-digit code for this staff member.', true);
+        staffSubmitBtn.disabled = false;
+        return;
+      }
+      staffSubmitBtn.textContent = 'Creating account...';
+      const { secondaryApp, secondaryAuth } = getSecondaryAuth();
+      try {
+        const cred = await createUserWithEmailAndPassword(secondaryAuth, emailForHandle(handle), code);
+        const newUid = cred.user.uid;
+        await setDoc(doc(db, 'staff', newUid), {
+          name, handle, isOwner: false, active: true, permissions,
+          createdAt: serverTimestamp(), createdBy: currentStaff ? currentStaff.id : null
+        });
+        showFeedback(staffFeedback, `${name} added. They can sign in with handle "${handle}".`);
+        logActivity('staff.create', `Added staff member "${name}" (@${handle})`);
+        resetStaffForm();
+      } catch (err) {
+        if (err.code === 'auth/email-already-in-use') {
+          showFeedback(staffFeedback, 'That handle is already taken.', true);
+        } else {
+          showFeedback(staffFeedback, err.message || 'Something went wrong.', true);
+        }
+      } finally {
+        await disposeSecondaryAuth(secondaryApp);
+        staffSubmitBtn.disabled = false;
+        staffSubmitBtn.textContent = editingId ? 'Update Staff Member' : 'Add Staff Member';
+      }
+    });
+
+    staffBody.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('row-edit-btn') && e.target.dataset.id) {
+        if (!can('staff')) return;
+        const s = staffCache.find(x => x.id === e.target.dataset.id);
+        if (!s) return;
+        staffIdInput.value = s.id;
+        staffNameInput.value = s.name;
+        staffHandleInput.value = s.handle;
+        staffHandleInput.disabled = true;
+        staffCodeGroup.style.display = 'none';
+        staffCodeInput.required = false;
+        permBookings.checked = !!(s.permissions && s.permissions.bookings);
+        permOrders.checked = !!(s.permissions && s.permissions.orders);
+        permProducts.checked = !!(s.permissions && s.permissions.products);
+        permServices.checked = !!(s.permissions && s.permissions.services);
+        permStaff.checked = !!(s.permissions && s.permissions.staff);
+        staffFormTitle.textContent = `Editing: ${s.name}`;
+        staffSubmitBtn.textContent = 'Update Staff Member';
+        staffCancelBtn.style.display = 'block';
+        staffForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (e.target.dataset.toggleId) {
+        if (!can('staff')) return;
+        const id = e.target.dataset.toggleId;
+        const s = staffCache.find(x => x.id === id);
+        if (!s || s.isOwner) return;
+        const nextActive = s.active === false ? true : false;
+        if (!confirm(`${nextActive ? 'Reactivate' : 'Deactivate'} ${s.name}?`)) return;
+        try {
+          await updateDoc(doc(db, 'staff', id), { active: nextActive });
+          logActivity('staff.toggle_active', `${nextActive ? 'Reactivated' : 'Deactivated'} "${s.name}"`);
+        } catch (err) {
+          showFeedback(staffFeedback, `Couldn't update: ${err.message}`, true);
+        }
+      }
+    });
+
+    // ============================================================
+    // ACTIVITY LOG (owner-only view, append-only writes throughout this file)
+    // ============================================================
+    const activityBody = document.getElementById('activityBody');
+    let activityUnsub = null;
+
+    function formatLogTime(ts) {
+      if (!ts || typeof ts.toDate !== 'function') return 'Just now';
+      return ts.toDate().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+    }
+
+    onSnapshot(query(collection(db, 'activityLog'), orderBy('createdAt', 'desc'), limit(200)), (snap) => {
+      if (!currentStaff || !currentStaff.isOwner) return; // rules also block this read for non-owners
+      activityBody.innerHTML = '';
+      if (snap.empty) {
+        activityBody.innerHTML = '<tr class="empty-row"><td colspan="4">No activity yet.</td></tr>';
+        return;
+      }
+      snap.docs.forEach(d => {
+        const a = d.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${formatLogTime(a.createdAt)}</td>
+          <td>${escapeHtml(a.actorName || '')}</td>
+          <td>${escapeHtml(a.action || '')}</td>
+          <td class="activity-row-detail">${escapeHtml(a.details || '')}</td>
+        `;
+        activityBody.appendChild(tr);
+      });
+    }, () => { /* silent — expected for non-owners once rules are deployed */ });
+  </script>
+
+</body>
+</html>
