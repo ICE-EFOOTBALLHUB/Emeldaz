@@ -197,6 +197,36 @@
   .image-preview-wrap { margin-top: 10px; }
   .image-preview-wrap img { width: 100%; max-width: 220px; max-height: 150px; object-fit: cover; border: 1px solid #d8cbb0; display: none; }
   .table-thumb { width: 50px; height: 50px; object-fit: cover; border: 1px solid #e2d9c9; display: block; }
+
+  /* ---------- PRODUCT PHOTOS (up to 5) ---------- */
+  .photo-preview-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .photo-preview-item { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+  .photo-preview-item img { width: 100%; height: 100%; object-fit: cover; border: 1px solid #d8cbb0; display: block; }
+  .photo-preview-item .photo-remove-btn {
+    position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; border-radius: 50%;
+    background: #b00020; color: #fff; border: 2px solid #fff; font-size: 13px; line-height: 1; cursor: pointer; padding: 0;
+  }
+  .photo-preview-item .photo-main-tag {
+    position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.68); color: #fff; font-size: 9px;
+    text-align: center; padding: 2px 0; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .photo-slots-hint { font-size: 12px; color: #948a7c; margin-top: 8px; }
+
+  /* ---------- PRODUCT COLORS ---------- */
+  .color-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .color-picker-row input[type=color] { width: 44px; height: 40px; border: 1px solid #d8cbb0; padding: 2px; cursor: pointer; background: #fff; }
+  .color-picker-row input[type=text] { flex: 1; min-width: 130px; border: 1px solid #d8cbb0; padding: 10px; font-size: 14px; }
+  .color-picker-row .row-edit-btn { flex-shrink: 0; }
+  .color-chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .color-chip {
+    display: flex; align-items: center; gap: 7px; background: #fff; border: 1px solid #d8cbb0; padding: 6px 10px 6px 8px;
+    font-size: 12px; font-family: 'Poppins', sans-serif; color: #000;
+  }
+  .color-chip-swatch { width: 15px; height: 15px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); display: inline-block; flex-shrink: 0; }
+  .color-chip button { background: none; border: none; color: #b00020; cursor: pointer; font-size: 15px; line-height: 1; padding: 0; font-weight: 700; }
+  .product-swatches { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .product-swatch-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); display: inline-block; }
+  .no-colors-text { font-size: 12px; color: #948a7c; }
   .cell-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .row-edit-btn {
     font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
@@ -231,6 +261,16 @@
   .staff-permissions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 4px; }
   .staff-permission-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #000; }
   .staff-permission-row input { width: 16px; height: 16px; }
+  .avail-services-picker {
+    display: flex; flex-direction: column; gap: 8px; margin-top: 10px; padding: 14px; background: var(--beige-light);
+    border: 1px solid #e2d9c9; max-height: 220px; overflow-y: auto;
+  }
+  .avail-services-picker .staff-permission-row { font-size: 13px; }
+  .avail-services-empty { font-size: 12px; color: #948a7c; font-style: italic; }
+  .staff-avail-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; letter-spacing: 0.3px; color: #6b4f37; background: var(--beige-light);
+    border: 1px solid #d8c3a0; padding: 2px 7px; display: inline-block; margin: 2px 3px 0 0;
+  }
   .owner-flag-badge {
     font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase;
     color: #fff; background: var(--brown-mid); padding: 3px 8px; margin-left: 6px;
@@ -418,9 +458,20 @@
               <input type="number" id="productStock" min="0" step="1" required>
             </div>
             <div class="form-group">
-              <label for="productImage">Photo</label>
-              <input type="file" id="productImage" accept="image/*">
-              <div class="image-preview-wrap"><img id="productImagePreview" alt="Preview"></div>
+              <label for="productImages">Photos (up to 5)</label>
+              <input type="file" id="productImages" accept="image/*" multiple>
+              <p class="photo-slots-hint" id="productPhotoHint">The first photo is used as the main photo.</p>
+              <div class="photo-preview-grid" id="productPhotoPreviewGrid"></div>
+            </div>
+            <div class="form-group">
+              <label>Colors Available</label>
+              <div class="color-picker-row">
+                <input type="color" id="productColorSwatch" value="#000000" aria-label="Color swatch">
+                <input type="text" id="productColorName" maxlength="30" placeholder="Color name, e.g. Black">
+                <button type="button" class="row-edit-btn" id="productColorAddBtn">Add Color</button>
+              </div>
+              <div class="color-chip-list" id="productColorList"></div>
+              <p class="photo-slots-hint">Optional &mdash; leave empty if this product doesn't come in different colors.</p>
             </div>
             <button type="submit" class="admin-submit-btn" id="productSubmitBtn">Add Product</button>
             <button type="button" class="form-cancel-btn" id="productCancelBtn">Cancel Edit</button>
@@ -432,7 +483,7 @@
       <p class="section-count" id="productsCount"></p>
       <div class="table-wrap">
         <table class="admin-table">
-          <thead><tr><th></th><th>Name</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+          <thead><tr><th></th><th>Name</th><th>Colors</th><th>Price</th><th>Stock</th><th></th></tr></thead>
           <tbody id="productsBody"></tbody>
         </table>
       </div>
@@ -503,7 +554,7 @@
       <p class="section-eyebrow">Booking Hours</p>
       <h2 class="section-heading">Manage Availability</h2>
       <p class="section-count">Each service has its own schedule. Pick a service, then tap a time slot to open or close it, 8am&ndash;8pm in 30-minute steps. Changes save instantly.</p>
-      <p class="permission-note" id="availabilityPermNote" style="display:none;">You don't have permission to change availability.</p>
+      <p class="permission-note" id="availabilityPermNote" style="display:none;">You don't have permission to change availability for any service. Ask the owner to grant it in Staff Roster.</p>
       <div class="service-jumpbar" id="availabilityJumpbar"></div>
       <p class="form-feedback" id="availabilityFeedback"></p>
       <div class="availability-grid" id="availabilityGrid"></div>
@@ -546,9 +597,14 @@
                 <label class="staff-permission-row"><input type="checkbox" id="permBookings"> Manage bookings</label>
                 <label class="staff-permission-row"><input type="checkbox" id="permOrders"> Manage orders</label>
                 <label class="staff-permission-row"><input type="checkbox" id="permProducts"> Manage products</label>
-                <label class="staff-permission-row"><input type="checkbox" id="permServices"> Manage services &amp; hours</label>
+                <label class="staff-permission-row"><input type="checkbox" id="permServices"> Manage services &amp; details</label>
+                <label class="staff-permission-row"><input type="checkbox" id="permAvailability"> Manage availability</label>
                 <label class="staff-permission-row"><input type="checkbox" id="permStaff"> Manage staff</label>
               </div>
+            </div>
+            <div class="form-group" id="availabilityServicesGroup" style="display:none;">
+              <label>Which services can they set availability for?</label>
+              <div class="avail-services-picker" id="availabilityServicesPicker"></div>
             </div>
             <button type="submit" class="admin-submit-btn" id="staffSubmitBtn">Add Staff Member</button>
             <button type="button" class="form-cancel-btn" id="staffCancelBtn">Cancel Edit</button>
@@ -657,6 +713,24 @@
       return !!(currentStaff.permissions && currentStaff.permissions[category]);
     }
 
+    // Availability access is per-service: full "services" permission always
+    // implies availability access to every service (they can already edit
+    // the service outright); the dedicated "availability" permission only
+    // grants access to the specific services listed in availabilityServiceIds.
+    function canAvailabilityFor(serviceId) {
+      if (!currentStaff || currentStaff.active === false) return false;
+      if (currentStaff.isOwner || can('services')) return true;
+      if (!can('availability')) return false;
+      const ids = Array.isArray(currentStaff.availabilityServiceIds) ? currentStaff.availabilityServiceIds : [];
+      return ids.includes(serviceId);
+    }
+
+    function hasAnyAvailabilityAccess() {
+      if (!currentStaff || currentStaff.active === false) return false;
+      if (currentStaff.isOwner || can('services')) return true;
+      return can('availability') && Array.isArray(currentStaff.availabilityServiceIds) && currentStaff.availabilityServiceIds.length > 0;
+    }
+
     async function logActivity(action, details) {
       if (!currentStaff) return;
       try {
@@ -716,7 +790,8 @@
                 handle: 'owner',
                 isOwner: true,
                 active: true,
-                permissions: { bookings: true, orders: true, products: true, services: true, staff: true },
+                permissions: { bookings: true, orders: true, products: true, services: true, availability: true, staff: true },
+                availabilityServiceIds: [],
                 createdAt: serverTimestamp(),
                 createdBy: user.uid
               });
@@ -865,13 +940,15 @@
       document.getElementById('productFormWrap').style.display = productsOk ? '' : 'none';
       document.querySelectorAll('#productsBody .row-edit-btn, #productsBody .row-delete-btn, #productsBody .stock-input').forEach(el => el.disabled = !productsOk);
 
-      // Services + availability share the same permission
+      // Services (name/price/description/duration/photo)
       const servicesOk = can('services');
       document.getElementById('servicesPermNote').style.display = currentStaff && !servicesOk ? 'block' : 'none';
       document.getElementById('serviceFormWrap').style.display = servicesOk ? '' : 'none';
       document.querySelectorAll('#servicesBody .row-edit-btn, #servicesBody .row-delete-btn').forEach(el => el.disabled = !servicesOk);
-      document.getElementById('availabilityPermNote').style.display = currentStaff && !servicesOk ? 'block' : 'none';
-      document.querySelectorAll('.avail-slot').forEach(el => el.disabled = !servicesOk);
+
+      // Availability: its own permission, scoped per-service via availabilityServiceIds
+      document.getElementById('availabilityPermNote').style.display = currentStaff && !hasAnyAvailabilityAccess() ? 'block' : 'none';
+      renderAvailabilityJumpbar();
 
       // Staff roster: whole section hidden unless owner or explicit staff permission
       const staffSectionOk = currentStaff && (currentStaff.isOwner || can('staff'));
@@ -1062,10 +1139,23 @@
     const productCategoryInput = document.getElementById('productCategory');
     const productPriceInput = document.getElementById('productPrice');
     const productStockInput = document.getElementById('productStock');
-    const productImageInput = document.getElementById('productImage');
-    const productImagePreview = document.getElementById('productImagePreview');
-    wireImagePreview(productImageInput, productImagePreview);
+    const productImagesInput = document.getElementById('productImages');
+    const productPhotoPreviewGrid = document.getElementById('productPhotoPreviewGrid');
+    const productPhotoHint = document.getElementById('productPhotoHint');
+    const productColorSwatch = document.getElementById('productColorSwatch');
+    const productColorName = document.getElementById('productColorName');
+    const productColorAddBtn = document.getElementById('productColorAddBtn');
+    const productColorList = document.getElementById('productColorList');
+    const MAX_PRODUCT_PHOTOS = 5;
     let productsCache = [];
+
+    // Ordered list of photos for the product currently being added/edited.
+    // Each item is { type: 'existing', url } (already on Cloudinary) or
+    // { type: 'file', file, objectUrl } (picked locally, not uploaded yet).
+    // Order matters: item 0 is always the "main" photo shown in the table.
+    let stagedPhotos = [];
+    // Colors staged for the product currently being added/edited: { name, hex }
+    let stagedColors = [];
 
     function stockBadge(stock) {
       const n = Number(stock) || 0;
@@ -1074,19 +1164,29 @@
       return `<span class="stock-badge in-stock">${n} in stock</span>`;
     }
 
+    function productSwatchesHtml(colors) {
+      if (!Array.isArray(colors) || colors.length === 0) return '';
+      return `<div class="product-swatches">${colors.map(c =>
+        `<span class="product-swatch-dot" style="background:${escapeHtml(c.hex || '#ccc')}" title="${escapeHtml(c.name || '')}"></span>`
+      ).join('')}</div>`;
+    }
+
     function renderProducts() {
       productsCount.textContent = `${productsCache.length} product${productsCache.length === 1 ? '' : 's'} listed`;
       productsBody.innerHTML = '';
       if (productsCache.length === 0) {
-        productsBody.innerHTML = '<tr class="empty-row"><td colspan="5">No products yet. Add one above.</td></tr>';
+        productsBody.innerHTML = '<tr class="empty-row"><td colspan="6">No products yet. Add one above.</td></tr>';
         return;
       }
       const productsOk = can('products');
       productsCache.forEach(p => {
+        const mainPhoto = (Array.isArray(p.imageUrls) && p.imageUrls[0]) || p.imageUrl || '';
+        const colorsHtml = productSwatchesHtml(p.colors) || '<span class="no-colors-text">&mdash;</span>';
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${p.imageUrl ? `<img class="table-thumb" src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}">` : ''}</td>
+          <td>${mainPhoto ? `<img class="table-thumb" src="${escapeHtml(mainPhoto)}" alt="${escapeHtml(p.name)}">` : ''}</td>
           <td class="cell-strong">${escapeHtml(p.name)}<span class="cell-sub">${escapeHtml(p.category || '')}</span></td>
+          <td>${colorsHtml}</td>
           <td>&pound;${Number(p.price).toFixed(2)}</td>
           <td><input type="number" class="stock-input" data-id="${p.id}" value="${Number(p.stock) || 0}" min="0" ${productsOk ? '' : 'disabled'}>${stockBadge(p.stock)}</td>
           <td class="cell-actions">
@@ -1102,7 +1202,77 @@
       productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderProducts();
     }, (err) => {
-      productsBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load products: ${err.message}</td></tr>`;
+      productsBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load products: ${err.message}</td></tr>`;
+    });
+
+    // ---------- Photo staging (up to 5) ----------
+    function renderPhotoPreviewGrid() {
+      productPhotoPreviewGrid.innerHTML = stagedPhotos.map((item, i) => `
+        <div class="photo-preview-item">
+          <img src="${item.type === 'existing' ? escapeHtml(item.url) : item.objectUrl}" alt="Product photo ${i + 1}">
+          ${i === 0 ? '<span class="photo-main-tag">Main</span>' : ''}
+          <button type="button" class="photo-remove-btn" data-index="${i}" title="Remove photo">&times;</button>
+        </div>
+      `).join('');
+      const remaining = MAX_PRODUCT_PHOTOS - stagedPhotos.length;
+      productImagesInput.disabled = remaining <= 0;
+      productPhotoHint.textContent = remaining <= 0
+        ? 'Maximum of 5 photos reached. Remove one to add another.'
+        : 'The first photo is used as the main photo.';
+    }
+
+    productImagesInput.addEventListener('change', () => {
+      const files = Array.from(productImagesInput.files || []);
+      const remaining = MAX_PRODUCT_PHOTOS - stagedPhotos.length;
+      files.slice(0, remaining).forEach(file => {
+        stagedPhotos.push({ type: 'file', file, objectUrl: URL.createObjectURL(file) });
+      });
+      productImagesInput.value = ''; // allow re-selecting the same file later
+      renderPhotoPreviewGrid();
+    });
+
+    productPhotoPreviewGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.photo-remove-btn');
+      if (!btn) return;
+      const idx = parseInt(btn.dataset.index, 10);
+      const removed = stagedPhotos.splice(idx, 1)[0];
+      if (removed && removed.type === 'file') URL.revokeObjectURL(removed.objectUrl);
+      renderPhotoPreviewGrid();
+    });
+
+    // ---------- Color staging ----------
+    function renderColorList() {
+      if (stagedColors.length === 0) {
+        productColorList.innerHTML = '<span class="no-colors-text">No colors added yet.</span>';
+        return;
+      }
+      productColorList.innerHTML = stagedColors.map((c, i) => `
+        <span class="color-chip">
+          <span class="color-chip-swatch" style="background:${escapeHtml(c.hex)}"></span>
+          ${escapeHtml(c.name)}
+          <button type="button" data-index="${i}" title="Remove color">&times;</button>
+        </span>
+      `).join('');
+    }
+
+    productColorAddBtn.addEventListener('click', () => {
+      const hex = productColorSwatch.value || '#000000';
+      const name = productColorName.value.trim() || hex.toUpperCase();
+      if (stagedColors.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+        showFeedback(productFeedback, `"${name}" is already in the list.`, true);
+        return;
+      }
+      stagedColors.push({ name, hex });
+      productColorName.value = '';
+      renderColorList();
+      showFeedback(productFeedback, '');
+    });
+
+    productColorList.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-index]');
+      if (!btn) return;
+      stagedColors.splice(parseInt(btn.dataset.index, 10), 1);
+      renderColorList();
     });
 
     function resetProductForm() {
@@ -1111,9 +1281,15 @@
       productFormTitle.textContent = 'Add New Product';
       productSubmitBtn.textContent = 'Add Product';
       productCancelBtn.style.display = 'none';
-      productImagePreview.style.display = 'none';
+      stagedPhotos.forEach(item => { if (item.type === 'file') URL.revokeObjectURL(item.objectUrl); });
+      stagedPhotos = [];
+      stagedColors = [];
+      renderPhotoPreviewGrid();
+      renderColorList();
     }
     productCancelBtn.addEventListener('click', resetProductForm);
+    renderPhotoPreviewGrid();
+    renderColorList();
 
     productForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1124,24 +1300,32 @@
       const price = parseFloat(productPriceInput.value);
       const stock = parseInt(productStockInput.value, 10);
       const editingId = productIdInput.value;
-      const file = productImageInput.files[0];
 
       if (!name || !description || isNaN(price) || price < 0 || isNaN(stock) || stock < 0) return;
-      if (!editingId && !file) { showFeedback(productFeedback, 'Please choose a photo for the product.', true); return; }
+      if (stagedPhotos.length === 0) { showFeedback(productFeedback, 'Please add at least one photo for the product.', true); return; }
 
       productSubmitBtn.disabled = true;
-      productSubmitBtn.textContent = file ? 'Uploading photo...' : 'Saving...';
+      const filesToUpload = stagedPhotos.filter(p => p.type === 'file').length;
+      productSubmitBtn.textContent = filesToUpload ? `Uploading ${filesToUpload} photo${filesToUpload === 1 ? '' : 's'}...` : 'Saving...';
       try {
-        let imageUrl = null;
-        if (file) imageUrl = await uploadToCloudinary(file);
+        // Upload any newly-picked files in order, keep already-uploaded URLs as-is.
+        const imageUrls = [];
+        for (const item of stagedPhotos) {
+          imageUrls.push(item.type === 'existing' ? item.url : await uploadToCloudinary(item.file));
+        }
+        const colors = stagedColors.map(c => ({ name: c.name, hex: c.hex }));
+
         if (editingId) {
-          const updateData = { name, description, category, price, stock };
-          if (imageUrl) updateData.imageUrl = imageUrl;
-          await updateDoc(doc(db, 'products', editingId), updateData);
+          await updateDoc(doc(db, 'products', editingId), {
+            name, description, category, price, stock, imageUrls, imageUrl: imageUrls[0], colors
+          });
           showFeedback(productFeedback, `${name} updated.`);
           logActivity('product.update', `Updated product "${name}"`);
         } else {
-          await addDoc(productsCol, { name, description, category, price, stock, imageUrl, createdAt: serverTimestamp() });
+          await addDoc(productsCol, {
+            name, description, category, price, stock, imageUrls, imageUrl: imageUrls[0], colors,
+            createdAt: serverTimestamp()
+          });
           showFeedback(productFeedback, `${name} added to products.`);
           logActivity('product.create', `Added product "${name}"`);
         }
@@ -1165,8 +1349,14 @@
         productCategoryInput.value = p.category || 'Hair Care';
         productPriceInput.value = p.price;
         productStockInput.value = p.stock;
-        productImagePreview.src = p.imageUrl || '';
-        productImagePreview.style.display = p.imageUrl ? 'block' : 'none';
+
+        stagedPhotos.forEach(item => { if (item.type === 'file') URL.revokeObjectURL(item.objectUrl); });
+        const existingUrls = Array.isArray(p.imageUrls) && p.imageUrls.length ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : []);
+        stagedPhotos = existingUrls.map(url => ({ type: 'existing', url }));
+        stagedColors = Array.isArray(p.colors) ? p.colors.map(c => ({ name: c.name, hex: c.hex })) : [];
+        renderPhotoPreviewGrid();
+        renderColorList();
+
         productFormTitle.textContent = `Editing: ${p.name}`;
         productSubmitBtn.textContent = 'Update Product';
         productCancelBtn.style.display = 'block';
@@ -1250,6 +1440,7 @@
     onSnapshot(query(servicesCol, orderBy('createdAt', 'desc')), (snap) => {
       servicesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderServices();
+      renderStaff(); // service names feed the "availability for" tags in the staff table
     }, (err) => {
       servicesBody.innerHTML = `<tr class="empty-row"><td colspan="5">Couldn't load services: ${err.message}</td></tr>`;
     });
@@ -1362,6 +1553,10 @@
     let selectedServiceId = null;
 
     function renderAvailabilityJumpbar() {
+      // Only show services this staff member actually has availability access to
+      // (owner and full "services" permission see everything).
+      const allowedServices = servicesCache.filter(s => canAvailabilityFor(s.id));
+
       if (servicesCache.length === 0) {
         selectedServiceId = null;
         availabilityJumpbar.innerHTML = '';
@@ -1369,11 +1564,18 @@
         availabilityFeedback.textContent = 'Add a service first to set its hours.';
         return;
       }
-      if (!selectedServiceId || !servicesCache.some(s => s.id === selectedServiceId)) {
-        selectedServiceId = servicesCache[0].id;
+      if (allowedServices.length === 0) {
+        selectedServiceId = null;
+        availabilityJumpbar.innerHTML = '';
+        availabilityGrid.innerHTML = '';
+        availabilityFeedback.textContent = currentStaff ? "You don't have availability access to any service yet." : '';
+        return;
+      }
+      if (!selectedServiceId || !allowedServices.some(s => s.id === selectedServiceId)) {
+        selectedServiceId = allowedServices[0].id;
       }
       availabilityFeedback.textContent = '';
-      availabilityJumpbar.innerHTML = servicesCache.map(s => `
+      availabilityJumpbar.innerHTML = allowedServices.map(s => `
         <button type="button" class="service-jump-pill ${s.id === selectedServiceId ? 'active' : ''}" data-id="${s.id}">${escapeHtml(s.name)}</button>
       `).join('');
       renderAvailabilityGrid();
@@ -1384,10 +1586,10 @@
       if (!service) { availabilityGrid.innerHTML = ''; return; }
       // No openSlots field yet on this service = everything open by default.
       const openSlots = Array.isArray(service.openSlots) ? new Set(service.openSlots) : new Set(ALL_SLOTS);
-      const servicesOk = can('services');
+      const slotOk = canAvailabilityFor(service.id);
       availabilityGrid.innerHTML = ALL_SLOTS.map(key => {
         const isOpen = openSlots.has(key);
-        return `<button type="button" class="avail-slot ${isOpen ? 'open' : 'closed'}" data-slot="${key}" ${servicesOk ? '' : 'disabled'}>${slotLabel(key)}</button>`;
+        return `<button type="button" class="avail-slot ${isOpen ? 'open' : 'closed'}" data-slot="${key}" ${slotOk ? '' : 'disabled'}>${slotLabel(key)}</button>`;
       }).join('');
     }
 
@@ -1400,7 +1602,7 @@
 
     availabilityGrid.addEventListener('click', async (e) => {
       const btn = e.target.closest('.avail-slot');
-      if (!btn || !can('services') || !selectedServiceId) return;
+      if (!btn || !selectedServiceId || !canAvailabilityFor(selectedServiceId)) return;
       const service = servicesCache.find(s => s.id === selectedServiceId);
       if (!service) return;
       const current = Array.isArray(service.openSlots) ? new Set(service.openSlots) : new Set(ALL_SLOTS);
@@ -1437,10 +1639,40 @@
     const permOrders = document.getElementById('permOrders');
     const permProducts = document.getElementById('permProducts');
     const permServices = document.getElementById('permServices');
+    const permAvailability = document.getElementById('permAvailability');
     const permStaff = document.getElementById('permStaff');
+    const availabilityServicesGroup = document.getElementById('availabilityServicesGroup');
+    const availabilityServicesPicker = document.getElementById('availabilityServicesPicker');
     let staffCache = [];
 
-    const PERM_LABELS = { bookings: 'Bookings', orders: 'Orders', products: 'Products', services: 'Services', staff: 'Staff' };
+    const PERM_LABELS = { bookings: 'Bookings', orders: 'Orders', products: 'Products', services: 'Services', availability: 'Availability', staff: 'Staff' };
+
+    // Renders the checklist of services inside the "Manage availability"
+    // permission block. `selectedIds` pre-checks whichever services the
+    // staff member being edited already has access to.
+    function renderAvailabilityServicesPicker(selectedIds) {
+      const ids = new Set(selectedIds || []);
+      if (servicesCache.length === 0) {
+        availabilityServicesPicker.innerHTML = '<span class="avail-services-empty">Add a service first.</span>';
+        return;
+      }
+      availabilityServicesPicker.innerHTML = servicesCache.map(s => `
+        <label class="staff-permission-row">
+          <input type="checkbox" class="avail-service-checkbox" value="${s.id}" ${ids.has(s.id) ? 'checked' : ''}>
+          ${escapeHtml(s.name)}
+        </label>
+      `).join('');
+    }
+
+    permAvailability.addEventListener('change', () => {
+      availabilityServicesGroup.style.display = permAvailability.checked ? 'block' : 'none';
+      // Only (re)build the checklist if it hasn't been populated yet, so
+      // toggling the box off and back on doesn't wipe out selections made
+      // earlier in the same edit session.
+      if (permAvailability.checked && !availabilityServicesPicker.querySelector('.avail-service-checkbox')) {
+        renderAvailabilityServicesPicker([]);
+      }
+    });
 
     function renderStaff() {
       staffCount.textContent = `${staffCache.length} staff member${staffCache.length === 1 ? '' : 's'}`;
@@ -1451,12 +1683,19 @@
       }
       staffCache.forEach(s => {
         const perms = s.isOwner ? 'All (Owner)' : Object.entries(s.permissions || {}).filter(([, v]) => v).map(([k]) => PERM_LABELS[k] || k).join(', ') || 'None';
+        let availTags = '';
+        if (!s.isOwner && s.permissions && s.permissions.availability && Array.isArray(s.availabilityServiceIds) && s.availabilityServiceIds.length) {
+          availTags = s.availabilityServiceIds.map(id => {
+            const svc = servicesCache.find(x => x.id === id);
+            return svc ? `<span class="staff-avail-tag">${escapeHtml(svc.name)}</span>` : '';
+          }).join('');
+        }
         const isSelf = currentStaff && s.id === currentStaff.id;
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="cell-strong">${escapeHtml(s.name)}${s.isOwner ? '<span class="owner-flag-badge">Owner</span>' : ''}${s.active === false ? '<span class="inactive-flag-badge">Inactive</span>' : ''}</td>
           <td>@${escapeHtml(s.handle)}</td>
-          <td>${escapeHtml(perms)}</td>
+          <td>${escapeHtml(perms)}${availTags ? `<br>${availTags}` : ''}</td>
           <td>${s.active === false ? 'Inactive' : 'Active'}</td>
           <td class="cell-actions">
             <button type="button" class="row-edit-btn" data-id="${s.id}">Edit</button>
@@ -1483,6 +1722,8 @@
       staffHandleInput.disabled = false;
       staffCodeGroup.style.display = 'block';
       staffCodeInput.required = true;
+      availabilityServicesGroup.style.display = 'none';
+      availabilityServicesPicker.innerHTML = '';
     }
     staffCancelBtn.addEventListener('click', resetStaffForm);
 
@@ -1498,8 +1739,14 @@
         orders: permOrders.checked,
         products: permProducts.checked,
         services: permServices.checked,
+        availability: permAvailability.checked,
         staff: permStaff.checked
       };
+      // Only meaningful (and only sent) when the availability permission
+      // itself is checked; otherwise always store an empty list.
+      const availabilityServiceIds = permAvailability.checked
+        ? Array.from(availabilityServicesPicker.querySelectorAll('.avail-service-checkbox:checked')).map(el => el.value)
+        : [];
 
       if (!name) { showFeedback(staffFeedback, 'Enter a name.', true); return; }
       if (!/^[a-z0-9\-]+$/.test(handle) || handle === 'owner') {
@@ -1514,7 +1761,7 @@
         // here — code changes are self-service only (see "Change My Code").
         staffSubmitBtn.textContent = 'Saving...';
         try {
-          await updateDoc(doc(db, 'staff', editingId), { name, permissions });
+          await updateDoc(doc(db, 'staff', editingId), { name, permissions, availabilityServiceIds });
           showFeedback(staffFeedback, `${name} updated.`);
           logActivity('staff.update', `Updated staff member "${name}"`);
           resetStaffForm();
@@ -1539,7 +1786,7 @@
         const cred = await createUserWithEmailAndPassword(secondaryAuth, emailForHandle(handle), code);
         const newUid = cred.user.uid;
         await setDoc(doc(db, 'staff', newUid), {
-          name, handle, isOwner: false, active: true, permissions,
+          name, handle, isOwner: false, active: true, permissions, availabilityServiceIds,
           createdAt: serverTimestamp(), createdBy: currentStaff ? currentStaff.id : null
         });
         showFeedback(staffFeedback, `${name} added. They can sign in with handle "${handle}".`);
@@ -1573,7 +1820,10 @@
         permOrders.checked = !!(s.permissions && s.permissions.orders);
         permProducts.checked = !!(s.permissions && s.permissions.products);
         permServices.checked = !!(s.permissions && s.permissions.services);
+        permAvailability.checked = !!(s.permissions && s.permissions.availability);
         permStaff.checked = !!(s.permissions && s.permissions.staff);
+        availabilityServicesGroup.style.display = permAvailability.checked ? 'block' : 'none';
+        renderAvailabilityServicesPicker(s.availabilityServiceIds || []);
         staffFormTitle.textContent = `Editing: ${s.name}`;
         staffSubmitBtn.textContent = 'Update Staff Member';
         staffCancelBtn.style.display = 'block';
