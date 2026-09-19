@@ -16,7 +16,8 @@ import {
   where,
   limit,
   serverTimestamp,
-  runTransaction
+  runTransaction,
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import {
   getAuth,
@@ -103,6 +104,16 @@ function formatNaira(amount) {
   });
 }
 
+// ---------- CUSTOMER KEY (shared across book.html, order.html, track.html) ----------
+// Firestore equality queries are case-sensitive, so "Sarah" would not match
+// a stored "sarah". Both write sides save this lower-cased, trimmed form
+// alongside the customer's own-cased `customerName`, and track.html queries
+// on it. Older docs written before this existed have no `customerKey`, so
+// track.html also falls back to an exact `customerName` match for those.
+function toCustomerKey(name) {
+  return String(name ?? '').trim().toLowerCase();
+}
+
 async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append("file", file);
@@ -133,9 +144,11 @@ export {
   limit,
   serverTimestamp,
   runTransaction,
+  arrayUnion,
   uploadToCloudinary,
   escapeHtml,
   formatNaira,
+  toCustomerKey,
   auth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
