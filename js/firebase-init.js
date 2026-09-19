@@ -89,6 +89,20 @@ function escapeHtml(str) {
   }[c]));
 }
 
+// ---------- CURRENCY (Naira) FORMATTING (shared across admin.html,
+// book.html, order.html) ----------
+// Stored prices are always plain numbers — only display formatting changes
+// here, no data migration needed. Whole amounts show no decimals
+// (e.g. ₦12,500); non-whole amounts show exactly two (e.g. ₦12,500.50).
+function formatNaira(amount) {
+  const n = Number(amount) || 0;
+  const isWhole = Math.round(n * 100) % 100 === 0;
+  return '\u20A6' + n.toLocaleString('en-NG', {
+    minimumFractionDigits: isWhole ? 0 : 2,
+    maximumFractionDigits: 2
+  });
+}
+
 async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append("file", file);
@@ -121,6 +135,7 @@ export {
   runTransaction,
   uploadToCloudinary,
   escapeHtml,
+  formatNaira,
   auth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
