@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book an Appointment — Emeldaz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     RESET + THEME — same variables as index.html
+     ============================================================ */
+  :root {
+    color-scheme: light dark;
+    --beige: #e8dcc8;
+    --beige-light: #f3ece0;
+    --beige-dark: #d8c3a0;
+    --brown-text: #3b2f22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #111;
+    background: #fff;
+  }
+
+  /* ============================================================
+     NAVBAR — copied from index.html so both pages match exactly
+     ============================================================ */
+  .navbar {
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.25rem;
+    position: relative;
+    z-index: 100;
+  }
+  .navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+  }
+  .navbar .logo img {
+    display: block;
+    height: 32px;
+    width: auto;
+  }
+  .navbar .logo-text {
+    font-family: "Dancing Script", "Brush Script MT", cursive;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .navbar .nav-links a {
+    color: #fff;
+    text-decoration: none;
+  }
+  .navbar .nav-links a.active {
+    color: var(--beige);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .nav-toggle { display: none; }
+  .nav-toggle-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .nav-toggle-label span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: #fff;
+  }
+  .navbar .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #000;
+    padding: 0 1.25rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease, padding 0.2s ease;
+    z-index: 100;
+  }
+  .nav-toggle:checked ~ .nav-links {
+    max-height: 300px;
+    padding: 1rem 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .nav-toggle-label { display: none; }
+    .navbar .nav-links {
+      position: static;
+      flex-direction: row;
+      gap: 1.5rem;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+      background: transparent;
+    }
+  }
+
+  /* ============================================================
+     PAGE BANNER
+     ============================================================ */
+  .page-banner {
+    background: var(--beige);
+    padding: 2.5rem 1.25rem 2rem;
+    text-align: left;
+  }
+  .page-banner h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+  }
+  .page-banner p {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    color: #4a3f30;
+    max-width: 50ch;
+  }
+  @media (min-width: 768px) {
+    .page-banner { padding: 4rem 3rem 3rem; }
+    .page-banner h1 { font-size: 2.25rem; }
+    .page-banner p { font-size: 1.05rem; }
+  }
+
+  /* ============================================================
+     BOOKING FLOW LAYOUT
+     ============================================================ */
+  .booking-section {
+    padding: 2rem 1.25rem 3rem;
+  }
+  .booking-container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .booking-step {
+    margin-bottom: 2.25rem;
+  }
+  .step-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--brown-text);
+    margin-bottom: 0.75rem;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--brown-text);
+    color: var(--beige-light);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .step-hint {
+    font-size: 0.85rem;
+    color: #6b5c47;
+    margin-bottom: 1rem;
+  }
+  .empty-note {
+    font-size: 0.9rem;
+    color: #6b5c47;
+    padding: 1rem;
+    background: var(--beige-light);
+    border-radius: 6px;
+  }
+
+  /* ---- Date picker ---- */
+  .date-input {
+    width: 100%;
+    max-width: 320px;
+    padding: 0.75rem 0.9rem;
+    font-size: 1rem;
+    border: 2px solid var(--beige-dark);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--brown-text);
+  }
+  .date-input:focus {
+    outline: none;
+    border-color: var(--brown-text);
+  }
+
+  /* ---- Service cards ---- */
+  .service-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+  .service-card {
+    position: relative;
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.75rem;
+    border: 2px solid var(--beige-dark);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .service-card.selected {
+    border-color: var(--brown-text);
+    background: var(--beige-light);
+  }
+  .service-checkbox {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--brown-text);
+    cursor: pointer;
+  }
+  .service-card-media {
+    flex-shrink: 0;
+    width: 84px;
+    height: 84px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--beige-light);
+  }
+  .service-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .service-card-noimg {
+    width: 100%;
+    height: 100%;
+    background: var(--beige);
+  }
+  .service-card-body {
+    flex: 1;
+    min-width: 0;
+    padding-right: 1.5rem;
+  }
+  .service-card-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--brown-text);
+  }
+  .service-card-desc {
+    font-size: 0.82rem;
+    color: #6b5c47;
+    margin-top: 0.2rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .service-card-meta {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--brown-text);
+    font-weight: 600;
+  }
+
+  /* ---- Jump bar (switch between selected services' grids) ---- */
+  .service-jumpbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .service-jump-pill {
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 2px solid var(--beige-dark);
+    background: #fff;
+    color: var(--brown-text);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .service-jump-pill.active {
+    background: var(--brown-text);
+    border-color: var(--brown-text);
+    color: var(--beige-light);
+  }
+  .service-jump-pill.done:not(.active) {
+    border-color: #7a9a6f;
+    color: #4c6b43;
+  }
+
+  /* ---- Time grid ---- */
+  .time-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  @media (min-width: 480px) {
+    .time-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (min-width: 768px) {
+    .time-grid { grid-template-columns: repeat(6, 1fr); }
+  }
+  .time-slot {
+    padding: 0.6rem 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 2px solid var(--beige-dark);
+    background: var(--beige-light);
+    color: var(--brown-text);
+    cursor: pointer;
+    text-align: center;
+  }
+  .time-slot.closed {
+    background: #f2f2f2;
+    border-color: #e0e0e0;
+    color: #b3b3b3;
+    cursor: not-allowed;
+  }
+  .time-slot.booked {
+    background: #f6e6e2;
+    border-color: #e3c3bb;
+    color: #b1786a;
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+  .time-slot.selected {
+    background: var(--brown-text);
+    border-color: var(--brown-text);
+    color: var(--beige-light);
+  }
+  .grid-feedback {
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+    color: #6b5c47;
+  }
+
+  /* ---- Details form ---- */
+  .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 420px;
+  }
+  .booking-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--brown-text);
+  }
+  .booking-form input {
+    padding: 0.75rem 0.9rem;
+    font-size: 1rem;
+    font-weight: 400;
+    border: 2px solid var(--beige-dark);
+    border-radius: 6px;
+    background: #fff;
+    color: #111;
+  }
+  .booking-form input:focus {
+    outline: none;
+    border-color: var(--brown-text);
+  }
+  .form-hint {
+    font-size: 0.78rem;
+    color: #6b5c47;
+  }
+  .submit-btn {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--beige-light);
+    background: var(--brown-text);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .form-feedback {
+    font-size: 0.85rem;
+    color: #a13d3d;
+    min-height: 1.2em;
+  }
+
+  /* ---- Confirmation ---- */
+  #confirmStep { text-align: center; }
+  .confirm-heading {
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--brown-text);
+  }
+  .confirm-summary {
+    margin: 1.25rem auto;
+    max-width: 420px;
+    text-align: left;
+    background: var(--beige-light);
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+  .confirm-summary p {
+    font-size: 0.9rem;
+    color: var(--brown-text);
+    margin-bottom: 0.5rem;
+  }
+  .confirm-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid rgba(59, 47, 34, 0.15);
+    font-size: 0.88rem;
+    color: var(--brown-text);
+  }
+  .confirm-item:first-of-type { border-top: none; }
+  .secondary-btn {
+    margin-top: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+    background: transparent;
+    border: 2px solid var(--brown-text);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  /* ============================================================
+     FOOTER — copied from index.html
+     ============================================================ */
+  footer { background: var(--beige); }
+  .footer-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2.5rem 1.25rem 2rem;
+  }
+  .footer-logo img {
+    display: block;
+    height: 40px;
+    width: auto;
+    margin: 0 auto;
+  }
+  .footer-info { margin-top: 1.5rem; }
+  .footer-heading {
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--brown-text);
+    margin-bottom: 0.6rem;
+  }
+  .footer-info p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #4a3f30;
+  }
+  .footer-bottom {
+    border-top: 1px solid rgba(59, 47, 34, 0.2);
+    padding: 1rem 1.25rem;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR — same markup as index.html; "Book Appointment"
+     marked active since this is that page.
+     ============================================================ -->
+<header class="navbar">
+  <a href="index.html" class="logo">
+    <img src="logo.png" alt="Emeldaz logo">
+    <span class="logo-text">Emeldaz</span>
+  </a>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle">
+  <label for="nav-toggle" class="nav-toggle-label">
+    <span></span><span></span><span></span>
+  </label>
+
+  <nav class="nav-links">
+    <a href="book.html" class="active">Book Appointment</a>
+    <a href="#">Products</a>
+    <a href="#">Services</a>
+    <a href="#">Contact</a>
+    <a href="index.html#about">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="page-banner">
+    <h1>Book an Appointment</h1>
+    <p>Pick a date, choose your service(s), and grab a time that works for you — no account needed.</p>
+  </section>
+
+  <section class="booking-section">
+    <div class="booking-container">
+
+      <div id="bookingFlow">
+
+        <!-- STEP 1: DATE -->
+        <div class="booking-step" id="dateStep">
+          <h2 class="step-heading"><span class="step-num">1</span> Choose a Date</h2>
+          <input type="date" id="bookingDate" class="date-input" aria-label="Booking date">
+        </div>
+
+        <!-- STEP 2: SERVICES -->
+        <div class="booking-step" id="servicesStep">
+          <h2 class="step-heading"><span class="step-num">2</span> Choose Your Service(s)</h2>
+          <p class="step-hint">Select one or more — each gets its own time slot in the next step.</p>
+          <div id="serviceList" class="service-list">
+            <p class="empty-note">Loading services&hellip;</p>
+          </div>
+        </div>
+
+        <!-- STEP 3: TIMES (per selected service) -->
+        <div class="booking-step" id="timesStep" hidden>
+          <h2 class="step-heading"><span class="step-num">3</span> Choose a Time</h2>
+          <p class="step-hint">Tap a service below to set its time. Greyed-out slots are closed; crossed-out slots are already booked.</p>
+          <div id="serviceJumpbar" class="service-jumpbar"></div>
+          <div id="timeGrid" class="time-grid"></div>
+          <p id="gridFeedback" class="grid-feedback"></p>
+        </div>
+
+        <!-- STEP 4: DETAILS -->
+        <div class="booking-step" id="detailsStep" hidden>
+          <h2 class="step-heading"><span class="step-num">4</span> Your Details</h2>
+          <form id="bookingForm" class="booking-form" novalidate>
+            <label for="customerName">Name / Handle
+              <input type="text" id="customerName" placeholder="e.g. Sarah, or your usual nickname" required>
+            </label>
+            <label for="customerPhone">Phone Number
+              <input type="tel" id="customerPhone" placeholder="e.g. 0803 123 4567" required>
+            </label>
+            <p class="form-hint">Remember whatever name or handle you type above — it's how you (or the shop) will recognize this booking later.</p>
+            <button type="submit" class="submit-btn" id="submitBtn">Confirm Booking</button>
+            <p id="formFeedback" class="form-feedback"></p>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- CONFIRMATION -->
+      <div class="booking-step" id="confirmStep" hidden>
+        <h2 class="step-heading confirm-heading">You're Booked!</h2>
+        <div id="confirmSummary" class="confirm-summary"></div>
+        <button type="button" id="bookAnotherBtn" class="secondary-btn">Book Another Appointment</button>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-logo">
+      <img src="logo.png" alt="Emeldaz Unisex Salon &amp; Spa logo">
+    </div>
+    <div class="footer-info">
+      <h3 class="footer-heading">Visit Us</h3>
+      <p>
+        202 Peter Odili Road, Port Harcourt, Nigeria<br>
+        +234 904 370 9147<br>
+        Available for bookings via WhatsApp
+      </p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; EMELDAZ UNISEX SALON 2026</p>
+  </div>
+</footer>
+
+<script type="module">
+  import {
+    db, collection, addDoc, onSnapshot, query, where, serverTimestamp, escapeHtml
+  } from './js/firebase-init.js';
+
+  // ============================================================
+  // CONSTANTS
+  // ============================================================
+  // Same 8am–8pm / 30-min grid as admin.html, so a slot key here
+  // always matches a key in a service's openSlots array.
+  const ALL_SLOTS = [];
+  for (let m = 8 * 60; m < 20 * 60; m += 30) {
+    const h = Math.floor(m / 60), mm = m % 60;
+    ALL_SLOTS.push(`${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`);
+  }
+  function slotLabel(key) {
+    const [h, m] = key.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    let displayHour = h % 12; if (displayHour === 0) displayHour = 12;
+    return `${displayHour}:${String(m).padStart(2, '0')} ${period}`;
+  }
+  function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  function formatDateHuman(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  const servicesCol = collection(db, 'services');
+  const bookingsCol = collection(db, 'bookings');
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  let servicesCache = [];               // live snapshot of the `services` collection
+  let selectedDate = todayStr();        // currently chosen booking date
+  let selectedServiceIds = [];          // ordered list of service IDs the customer picked
+  let chosenTimes = new Map();          // serviceId -> chosen time key, e.g. "09:30"
+  let bookedSlotsMap = new Map();       // serviceId -> Set of times already booked on selectedDate
+  let bookingListeners = new Map();     // serviceId -> unsubscribe fn for its live bookings query
+  let activeGridServiceId = null;       // which selected service's grid is currently shown
+
+  // ============================================================
+  // DOM REFS
+  // ============================================================
+  const bookingDateInput = document.getElementById('bookingDate');
+  const serviceList = document.getElementById('serviceList');
+  const timesStep = document.getElementById('timesStep');
+  const serviceJumpbar = document.getElementById('serviceJumpbar');
+  const timeGrid = document.getElementById('timeGrid');
+  const gridFeedback = document.getElementById('gridFeedback');
+  const detailsStep = document.getElementById('detailsStep');
+  const bookingForm = document.getElementById('bookingForm');
+  const customerNameInput = document.getElementById('customerName');
+  const customerPhoneInput = document.getElementById('customerPhone');
+  const submitBtn = document.getElementById('submitBtn');
+  const formFeedback = document.getElementById('formFeedback');
+  const bookingFlow = document.getElementById('bookingFlow');
+  const confirmStep = document.getElementById('confirmStep');
+  const confirmSummary = document.getElementById('confirmSummary');
+  const bookAnotherBtn = document.getElementById('bookAnotherBtn');
+
+  bookingDateInput.min = todayStr();
+  bookingDateInput.value = selectedDate;
+
+  // ============================================================
+  // LIVE BOOKED-SLOT TRACKING (per selected service, per date)
+  // ============================================================
+  function subscribeServiceBookings(serviceId) {
+    unsubscribeServiceBookings(serviceId);
+    const q = query(bookingsCol, where('serviceId', '==', serviceId), where('date', '==', selectedDate));
+    const unsub = onSnapshot(q, (snap) => {
+      bookedSlotsMap.set(serviceId, new Set(snap.docs.map((d) => d.data().time)));
+      if (activeGridServiceId === serviceId) renderGrid();
+    }, (err) => {
+      console.error('Couldn\'t watch bookings for', serviceId, err);
+    });
+    bookingListeners.set(serviceId, unsub);
+  }
+  function unsubscribeServiceBookings(serviceId) {
+    const unsub = bookingListeners.get(serviceId);
+    if (unsub) { unsub(); bookingListeners.delete(serviceId); }
+    bookedSlotsMap.delete(serviceId);
+  }
+  function unsubscribeAllBookings() {
+    bookingListeners.forEach((unsub) => unsub());
+    bookingListeners.clear();
+    bookedSlotsMap.clear();
+  }
+
+  // ============================================================
+  // SERVICES — live list, checkbox cards
+  // ============================================================
+  onSnapshot(servicesCol, (snap) => {
+    servicesCache = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    // Drop any selection/grid state for services that no longer exist.
+    selectedServiceIds = selectedServiceIds.filter((id) => servicesCache.some((s) => s.id === id));
+    if (activeGridServiceId && !selectedServiceIds.includes(activeGridServiceId)) {
+      activeGridServiceId = selectedServiceIds[0] || null;
+    }
+    renderServiceList();
+    renderJumpbar();
+    renderGrid();
+    updateVisibility();
+  }, (err) => {
+    serviceList.innerHTML = `<p class="empty-note">Couldn't load services: ${escapeHtml(err.message)}</p>`;
+  });
+
+  function renderServiceList() {
+    if (!servicesCache.length) {
+      serviceList.innerHTML = '<p class="empty-note">No services are available to book right now. Please check back soon.</p>';
+      return;
+    }
+    serviceList.innerHTML = servicesCache.map((s) => {
+      const checked = selectedServiceIds.includes(s.id);
+      const media = s.imageUrl
+        ? `<img src="${escapeHtml(s.imageUrl)}" alt="${escapeHtml(s.name || '')}">`
+        : `<div class="service-card-noimg"></div>`;
+      return `
+        <label class="service-card ${checked ? 'selected' : ''}">
+          <input type="checkbox" class="service-checkbox" data-id="${s.id}" ${checked ? 'checked' : ''}>
+          <div class="service-card-media">${media}</div>
+          <div class="service-card-body">
+            <h3 class="service-card-name">${escapeHtml(s.name || '')}</h3>
+            ${s.description ? `<p class="service-card-desc">${escapeHtml(s.description)}</p>` : ''}
+            <div class="service-card-meta">
+              <span class="service-price">&pound;${Number(s.price || 0).toFixed(2)} ${escapeHtml(s.priceUnit || '')}</span>
+              <span class="service-duration">${s.duration || 30} min</span>
+            </div>
+          </div>
+        </label>
+      `;
+    }).join('');
+  }
+
+  serviceList.addEventListener('change', (e) => {
+    const cb = e.target.closest('.service-checkbox');
+    if (!cb) return;
+    toggleService(cb.dataset.id, cb.checked);
+  });
+
+  function toggleService(id, checked) {
+    if (checked) {
+      if (!selectedServiceIds.includes(id)) selectedServiceIds.push(id);
+      subscribeServiceBookings(id);
+      activeGridServiceId = id;
+    } else {
+      selectedServiceIds = selectedServiceIds.filter((x) => x !== id);
+      unsubscribeServiceBookings(id);
+      chosenTimes.delete(id);
+      if (activeGridServiceId === id) {
+        activeGridServiceId = selectedServiceIds[0] || null;
+      }
+    }
+    renderServiceList();
+    renderJumpbar();
+    renderGrid();
+    updateVisibility();
+  }
+
+  // ============================================================
+  // DATE
+  // ============================================================
+  bookingDateInput.addEventListener('change', () => {
+    if (!bookingDateInput.value) return;
+    selectedDate = bookingDateInput.value;
+    chosenTimes.clear();
+    unsubscribeAllBookings();
+    selectedServiceIds.forEach((id) => subscribeServiceBookings(id));
+    renderJumpbar();
+    renderGrid();
+    updateVisibility();
+  });
+
+  // ============================================================
+  // JUMP BAR + TIME GRID
+  // ============================================================
+  function renderJumpbar() {
+    if (!selectedServiceIds.length) { serviceJumpbar.innerHTML = ''; return; }
+    serviceJumpbar.innerHTML = selectedServiceIds.map((id) => {
+      const s = servicesCache.find((x) => x.id === id);
+      if (!s) return '';
+      const done = chosenTimes.has(id);
+      const active = id === activeGridServiceId;
+      return `<button type="button" class="service-jump-pill ${active ? 'active' : ''} ${done ? 'done' : ''}" data-id="${id}">${escapeHtml(s.name || '')}${done ? ' &#10003;' : ''}</button>`;
+    }).join('');
+  }
+
+  serviceJumpbar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.service-jump-pill');
+    if (!btn) return;
+    activeGridServiceId = btn.dataset.id;
+    renderJumpbar();
+    renderGrid();
+  });
+
+  function renderGrid() {
+    if (!activeGridServiceId) {
+      timeGrid.innerHTML = '';
+      gridFeedback.textContent = '';
+      return;
+    }
+    const service = servicesCache.find((s) => s.id === activeGridServiceId);
+    if (!service) { timeGrid.innerHTML = ''; gridFeedback.textContent = ''; return; }
+
+    // No openSlots field yet on this service = everything open by default
+    // (matches the same default admin.html's availability grid uses).
+    const openSlots = Array.isArray(service.openSlots) ? new Set(service.openSlots) : new Set(ALL_SLOTS);
+    const booked = bookedSlotsMap.get(activeGridServiceId) || new Set();
+    const chosen = chosenTimes.get(activeGridServiceId);
+
+    timeGrid.innerHTML = ALL_SLOTS.map((key) => {
+      const isOpen = openSlots.has(key);
+      const isBooked = booked.has(key);
+      const isSelected = key === chosen;
+      let cls = 'time-slot';
+      if (isSelected) cls += ' selected';
+      else if (!isOpen) cls += ' closed';
+      else if (isBooked) cls += ' booked';
+      const disabled = (!isOpen || isBooked) && !isSelected;
+      return `<button type="button" class="${cls}" data-slot="${key}" ${disabled ? 'disabled' : ''}>${slotLabel(key)}</button>`;
+    }).join('');
+
+    gridFeedback.textContent = `Showing hours for ${service.name || 'this service'} on ${formatDateHuman(selectedDate)}.`;
+  }
+
+  timeGrid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.time-slot');
+    if (!btn || btn.disabled || !activeGridServiceId) return;
+    chosenTimes.set(activeGridServiceId, btn.dataset.slot);
+    renderGrid();
+    renderJumpbar();
+    updateVisibility();
+  });
+
+  // ============================================================
+  // STEP VISIBILITY
+  // ============================================================
+  function allTimesChosen() {
+    return selectedServiceIds.length > 0 && selectedServiceIds.every((id) => chosenTimes.has(id));
+  }
+
+  function updateVisibility() {
+    const showTimes = !!(selectedDate && selectedServiceIds.length > 0);
+    timesStep.hidden = !showTimes;
+    detailsStep.hidden = !(showTimes && allTimesChosen());
+  }
+
+  // ============================================================
+  // SUBMIT — one `bookings` doc per selected service (Part 9.3 shape)
+  // ============================================================
+  bookingForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formFeedback.textContent = '';
+
+    const name = customerNameInput.value.trim();
+    const phone = customerPhoneInput.value.trim();
+
+    if (!name || !phone) {
+      formFeedback.textContent = 'Please fill in your name/handle and phone number.';
+      return;
+    }
+    if (!selectedDate || !selectedServiceIds.length || !allTimesChosen()) {
+      formFeedback.textContent = 'Please choose a date, at least one service, and a time for each service.';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Booking\u2026';
+
+    try {
+      const bookedItems = [];
+      for (const id of selectedServiceIds) {
+        const service = servicesCache.find((s) => s.id === id);
+        const time = chosenTimes.get(id);
+        await addDoc(bookingsCol, {
+          customerName: name,
+          customerPhone: phone,
+          serviceId: id,
+          serviceName: service ? service.name : '',
+          price: service ? service.price : null,
+          duration: service ? service.duration : null,
+          date: selectedDate,
+          time,
+          status: 'pending',
+          createdAt: serverTimestamp()
+        });
+        bookedItems.push({
+          name: service ? service.name : '',
+          time,
+          price: service ? service.price : null
+        });
+      }
+      showConfirmation(name, bookedItems);
+    } catch (err) {
+      console.error('Booking write failed', err);
+      formFeedback.textContent = `Something went wrong saving your booking: ${err.message}. Please try again.`;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Confirm Booking';
+    }
+  });
+
+  function showConfirmation(name, items) {
+    const rows = items.map((it) => `
+      <div class="confirm-item">
+        <span>${escapeHtml(it.name)}</span>
+        <span>${slotLabel(it.time)}</span>
+      </div>
+    `).join('');
+    confirmSummary.innerHTML = `
+      <p><strong>${escapeHtml(name)}</strong>, you're booked for ${formatDateHuman(selectedDate)}:</p>
+      ${rows}
+      <p style="margin-top:0.75rem;">Save your name/handle &mdash; it's how the shop (and you) will recognize this booking.</p>
+    `;
+    bookingFlow.hidden = true;
+    confirmStep.hidden = false;
+  }
+
+  bookAnotherBtn.addEventListener('click', () => {
+    unsubscribeAllBookings();
+    selectedServiceIds = [];
+    chosenTimes.clear();
+    activeGridServiceId = null;
+    selectedDate = todayStr();
+    bookingDateInput.value = selectedDate;
+    customerNameInput.value = '';
+    customerPhoneInput.value = '';
+    formFeedback.textContent = '';
+    renderServiceList();
+    renderJumpbar();
+    renderGrid();
+    updateVisibility();
+    confirmStep.hidden = true;
+    bookingFlow.hidden = false;
+  });
+
+  // Initial paint.
+  updateVisibility();
+</script>
+
+</body>
+</html>

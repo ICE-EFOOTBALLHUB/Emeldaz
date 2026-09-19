@@ -138,6 +138,14 @@
   .cell-sub { display: block; font-size: 12px; color: #948a7c; font-weight: 400; }
   .empty-row td { text-align: center; color: #948a7c; font-style: italic; padding: 26px 16px; }
 
+  /* One customer visit can now write several `bookings` docs (one per
+     selected service, see project plan Part 9). Rows from the same visit
+     (same customerName + date) get a shared beige left-edge accent so
+     they read as one group at a glance, per Part 9.5. */
+  .admin-table tbody tr.visit-row td:first-child { border-left: 3px solid var(--beige-dark); }
+  .admin-table tbody tr.visit-continued td:first-child { color: #ccc0aa; font-style: italic; }
+  .group-badge { display: block; font-size: 12px; color: #7a6a52; font-weight: 700; margin-top: 2px; }
+
   /* ---------- STATUS BADGES + SELECTS ---------- */
   .status-select {
     font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
@@ -411,7 +419,7 @@
       <div class="table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>Customer</th><th>Service(s)</th><th>Date &amp; Time</th><th>Total</th><th>Status</th><th></th></tr>
+            <tr><th>Customer</th><th>Service</th><th>Date &amp; Time</th><th>Price</th><th>Status</th><th></th></tr>
           </thead>
           <tbody id="reservationsBody"></tbody>
         </table>
@@ -1117,6 +1125,31 @@
       return `${dateLabel}, ${timeLabel}`;
     }
 
+    // book.html (Part 9) writes one `bookings` doc per selected service —
+    // same visit, same customerName/date, but no shared foreign key. Group
+    // them here (customerName + date) purely for display, so a multi-service
+    // visit reads as one block instead of scattered rows. Groups are then
+    // ordered by their most recent doc's createdAt, so the table still
+    // surfaces the newest activity first — grouping and recency together.
+    function groupReservationsForDisplay(list) {
+      const groups = new Map();
+      list.forEach(r => {
+        const key = `${(r.customerName || '').trim().toLowerCase()}|${r.date || ''}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(r);
+      });
+      const groupArr = Array.from(groups.values()).map(items => {
+        items.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+        const latestMs = items.reduce((max, it) => {
+          const ms = it.createdAt && typeof it.createdAt.toMillis === 'function' ? it.createdAt.toMillis() : 0;
+          return Math.max(max, ms);
+        }, 0);
+        return { items, latestMs };
+      });
+      groupArr.sort((a, b) => b.latestMs - a.latestMs);
+      return groupArr;
+    }
+
     function renderReservations() {
       reservationsCount.textContent = `${reservationsCache.length} reservation${reservationsCache.length === 1 ? '' : 's'}`;
       reservationsBody.innerHTML = '';
@@ -1125,24 +1158,35 @@
         return;
       }
       const bookingsOk = can('bookings');
-      reservationsCache.forEach(r => {
-        const status = r.status || 'pending';
-        const serviceNames = Array.isArray(r.services) ? r.services.map(s => s.name).join(', ') : (r.services || '');
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${escapeHtml(r.customerName || '')}<span class="cell-sub">${escapeHtml(r.customerPhone || '')}</span></td>
-          <td>${escapeHtml(serviceNames)}</td>
-          <td>${formatBookingDateTime(r)}</td>
-          <td class="cell-strong">&pound;${Number(r.totalPrice || 0).toFixed(2)}</td>
-          <td>
-            <select class="status-select st-${status}" data-id="${r.id}" ${bookingsOk ? '' : 'disabled'}>
-              ${RES_STATUSES.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
-            </select>
-          </td>
-          <td><button type="button" class="row-delete-btn" data-id="${r.id}" ${bookingsOk ? '' : 'disabled'}>Remove</button></td>
-        `;
-        reservationsBody.appendChild(tr);
+      const groups = groupReservationsForDisplay(reservationsCache);
+      const rowsHtml = [];
+      groups.forEach(group => {
+        const items = group.items;
+        const isMulti = items.length > 1;
+        const groupTotal = items.reduce((sum, it) => sum + Number(it.price || 0), 0);
+        items.forEach((r, i) => {
+          const status = r.status || 'pending';
+          const isFirst = i === 0;
+          const customerCell = isFirst
+            ? `${escapeHtml(r.customerName || '')}<span class="cell-sub">${escapeHtml(r.customerPhone || '')}</span>${isMulti ? `<span class="group-badge">${items.length} services &middot; &pound;${groupTotal.toFixed(2)} total</span>` : ''}`
+            : '&#8618;'; // continuation of the same visit
+          rowsHtml.push(`
+            <tr class="${isMulti ? 'visit-row' : ''} ${isMulti && !isFirst ? 'visit-continued' : ''}">
+              <td>${customerCell}</td>
+              <td>${escapeHtml(r.serviceName || '')}</td>
+              <td>${formatBookingDateTime(r)}</td>
+              <td class="cell-strong">&pound;${Number(r.price || 0).toFixed(2)}</td>
+              <td>
+                <select class="status-select st-${status}" data-id="${r.id}" ${bookingsOk ? '' : 'disabled'}>
+                  ${RES_STATUSES.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
+                </select>
+              </td>
+              <td><button type="button" class="row-delete-btn" data-id="${r.id}" ${bookingsOk ? '' : 'disabled'}>Remove</button></td>
+            </tr>
+          `);
+        });
       });
+      reservationsBody.innerHTML = rowsHtml.join('');
     }
 
     function subscribeBookings() {
