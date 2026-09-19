@@ -221,10 +221,27 @@
   .photo-slots-hint { font-size: 12px; color: #948a7c; margin-top: 8px; }
 
   /* ---------- PRODUCT COLORS ---------- */
-  .color-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .color-picker-row input[type=color] { width: 44px; height: 40px; border: 1px solid #d8cbb0; padding: 2px; cursor: pointer; background: #fff; }
-  .color-picker-row input[type=text] { flex: 1; min-width: 130px; border: 1px solid #d8cbb0; padding: 10px; font-size: 14px; }
-  .color-picker-row .row-edit-btn { flex-shrink: 0; }
+  .color-search { position: relative; }
+  .color-search input[type=text] { width: 100%; border: 1px solid #d8cbb0; background: #fff; padding: 12px 13px; font-size: 15px; color: #000; }
+  .color-search input[type=text]:focus { outline: 2px solid var(--brown-mid); outline-offset: -2px; }
+  .color-results {
+    display: none; margin-top: 6px; max-height: 264px; overflow-y: auto; background: #fff; border: 1px solid #d8cbb0;
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  }
+  .color-results.open { display: block; }
+  .color-option {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; padding: 8px 13px; background: #fff; border: none;
+    border-bottom: 1px solid #f0e6d4; cursor: pointer; text-align: left; font-family: 'Poppins', sans-serif; font-size: 14px; color: #000;
+  }
+  .color-option:last-child { border-bottom: none; }
+  .color-option:hover, .color-option.active { background: var(--beige-light); }
+  .color-option-swatch { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); flex-shrink: 0; }
+  .color-option-name { flex: 1; }
+  .color-option-name mark { background: none; color: inherit; font-weight: 700; text-decoration: underline; }
+  .color-option-hex { font-size: 11px; color: #948a7c; letter-spacing: 0.5px; }
+  .color-option.added { opacity: 0.45; cursor: default; }
+  .color-option.added .color-option-hex { font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .color-results-empty { padding: 16px 13px; font-size: 13px; color: #948a7c; font-style: italic; }
   .color-chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .color-chip {
     display: flex; align-items: center; gap: 7px; background: #fff; border: 1px solid #d8cbb0; padding: 6px 10px 6px 8px;
@@ -232,6 +249,15 @@
   }
   .color-chip-swatch { width: 15px; height: 15px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); display: inline-block; flex-shrink: 0; }
   .color-chip button { background: none; border: none; color: #b00020; cursor: pointer; font-size: 15px; line-height: 1; padding: 0; font-weight: 700; }
+  .color-chip-stock-wrap { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #6b6259; }
+  .color-chip-stock { width: 58px; border: 1px solid #d8cbb0; padding: 4px 6px; font-size: 13px; background: #fff; }
+  .color-chip-stock.zero { border-color: #b00020; color: #b00020; }
+  .stock-locked { background: var(--beige-light); color: #6b6259; }
+  .table-color-list { display: flex; flex-direction: column; gap: 6px; }
+  .table-color-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .table-color-row .color-stock-input { width: 58px; border: 1px solid #d8cbb0; padding: 5px 6px; font-size: 13px; }
+  .table-color-row.sold-out .color-stock-input { border-color: #b00020; color: #b00020; }
+  .table-color-soldout { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: #b00020; }
   .product-swatches { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
   .product-swatch-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); display: inline-block; }
   .no-colors-text { font-size: 12px; color: #948a7c; }
@@ -484,8 +510,9 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="productStock">Stock</label>
+              <label for="productStock" id="productStockLabel">Stock</label>
               <input type="number" id="productStock" min="0" step="1" required>
+              <p class="photo-slots-hint" id="productStockHint" style="display:none;">Total of all colors below &mdash; set each color's stock there.</p>
             </div>
             <div class="form-group">
               <label for="productImages">Photos (up to 5)</label>
@@ -495,13 +522,13 @@
             </div>
             <div class="form-group">
               <label>Colors Available</label>
-              <div class="color-picker-row">
-                <input type="color" id="productColorSwatch" value="#000000" aria-label="Color swatch">
-                <input type="text" id="productColorName" maxlength="30" placeholder="Color name, e.g. Black">
-                <button type="button" class="row-edit-btn" id="productColorAddBtn">Add Color</button>
+              <div class="color-search">
+                <input type="text" id="productColorSearch" autocomplete="off" autocapitalize="off" spellcheck="false"
+                       placeholder="Type a color, e.g. b, bl, blue&hellip;" role="combobox" aria-expanded="false" aria-controls="productColorResults">
+                <div class="color-results" id="productColorResults" role="listbox"></div>
               </div>
               <div class="color-chip-list" id="productColorList"></div>
-              <p class="photo-slots-hint">Optional &mdash; leave empty if this product doesn't come in different colors.</p>
+              <p class="photo-slots-hint">Optional &mdash; tap a color to add it, then set how many you have of each. A color at 0 shows as sold out. Leave empty if this product doesn't come in different colors.</p>
             </div>
             <button type="submit" class="admin-submit-btn" id="productSubmitBtn">Add Product</button>
             <button type="button" class="form-cancel-btn" id="productCancelBtn">Cancel Edit</button>
@@ -1081,7 +1108,7 @@
       document.getElementById('productsSection').classList.toggle('hidden', !productsOk);
       document.getElementById('productsPermNote').style.display = 'none';
       document.getElementById('productFormWrap').style.display = productsOk ? '' : 'none';
-      document.querySelectorAll('#productsBody .row-edit-btn, #productsBody .row-delete-btn, #productsBody .stock-input').forEach(el => el.disabled = !productsOk);
+      document.querySelectorAll('#productsBody .row-edit-btn, #productsBody .row-delete-btn, #productsBody .stock-input, #productsBody .color-stock-input').forEach(el => el.disabled = !productsOk);
 
       // Services (name/price/description/duration/photo)
       const servicesOk = can('services');
@@ -1336,9 +1363,8 @@
     const productImagesInput = document.getElementById('productImages');
     const productPhotoPreviewGrid = document.getElementById('productPhotoPreviewGrid');
     const productPhotoHint = document.getElementById('productPhotoHint');
-    const productColorSwatch = document.getElementById('productColorSwatch');
-    const productColorName = document.getElementById('productColorName');
-    const productColorAddBtn = document.getElementById('productColorAddBtn');
+    const productColorSearch = document.getElementById('productColorSearch');
+    const productColorResults = document.getElementById('productColorResults');
     const productColorList = document.getElementById('productColorList');
     const MAX_PRODUCT_PHOTOS = 5;
     let productsCache = [];
@@ -1348,8 +1374,21 @@
     // { type: 'file', file, objectUrl } (picked locally, not uploaded yet).
     // Order matters: item 0 is always the "main" photo shown in the table.
     let stagedPhotos = [];
-    // Colors staged for the product currently being added/edited: { name, hex }
+    // Colors staged for the product currently being added/edited: { name, hex, stock }
     let stagedColors = [];
+
+    // One row per color: swatch, name, and an inline stock box (saved on change).
+    function productColorStockHtml(p, productsOk) {
+      return `<div class="table-color-list">${p.colors.map((c, i) => {
+        const n = Math.max(0, parseInt(c.stock, 10) || 0);
+        return `<div class="table-color-row${n <= 0 ? ' sold-out' : ''}">
+          <span class="product-swatch-dot" style="background:${escapeHtml(c.hex)}"></span>
+          <span>${escapeHtml(c.name)}</span>
+          <input type="number" class="color-stock-input" data-id="${p.id}" data-color-index="${i}" value="${n}" min="0" step="1" aria-label="Stock for ${escapeHtml(c.name)}" ${productsOk ? '' : 'disabled'}>
+          ${n <= 0 ? '<span class="table-color-soldout">Sold out</span>' : ''}
+        </div>`;
+      }).join('')}</div>`;
+    }
 
     function stockBadge(stock) {
       const n = Number(stock) || 0;
@@ -1375,14 +1414,15 @@
       const productsOk = can('products');
       productsCache.forEach(p => {
         const mainPhoto = (Array.isArray(p.imageUrls) && p.imageUrls[0]) || p.imageUrl || '';
-        const colorsHtml = productSwatchesHtml(p.colors) || '<span class="no-colors-text">&mdash;</span>';
+        const hasColors = Array.isArray(p.colors) && p.colors.length > 0;
+        const colorsHtml = hasColors ? productColorStockHtml(p, productsOk) : '<span class="no-colors-text">&mdash;</span>';
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${mainPhoto ? `<img class="table-thumb" src="${escapeHtml(mainPhoto)}" alt="${escapeHtml(p.name)}">` : ''}</td>
           <td class="cell-strong">${escapeHtml(p.name)}<span class="cell-sub">${escapeHtml(p.category || '')}</span></td>
           <td>${colorsHtml}</td>
           <td>&pound;${Number(p.price).toFixed(2)}</td>
-          <td><input type="number" class="stock-input" data-id="${p.id}" value="${Number(p.stock) || 0}" min="0" ${productsOk ? '' : 'disabled'}>${stockBadge(p.stock)}</td>
+          <td>${hasColors ? '' : `<input type="number" class="stock-input" data-id="${p.id}" value="${Number(p.stock) || 0}" min="0" ${productsOk ? '' : 'disabled'}>`}${stockBadge(hasColors ? colorsTotalStock(p.colors) : p.stock)}</td>
           <td class="cell-actions">
             <button type="button" class="row-edit-btn" data-id="${p.id}" ${productsOk ? '' : 'disabled'}>Edit</button>
             <button type="button" class="row-delete-btn" data-id="${p.id}" ${productsOk ? '' : 'disabled'}>Remove</button>
@@ -1438,7 +1478,30 @@
     });
 
     // ---------- Color staging ----------
+    function colorsTotalStock(list) {
+      return list.reduce((sum, c) => sum + (Math.max(0, parseInt(c.stock, 10)) || 0), 0);
+    }
+
+    // With colors, the product's Stock is just the sum of the per-color stock (read-only).
+    function syncProductStockField() {
+      const label = document.getElementById('productStockLabel');
+      const hint = document.getElementById('productStockHint');
+      if (stagedColors.length > 0) {
+        productStockInput.value = colorsTotalStock(stagedColors);
+        productStockInput.readOnly = true;
+        productStockInput.classList.add('stock-locked');
+        label.textContent = 'Stock (total)';
+        hint.style.display = 'block';
+      } else {
+        productStockInput.readOnly = false;
+        productStockInput.classList.remove('stock-locked');
+        label.textContent = 'Stock';
+        hint.style.display = 'none';
+      }
+    }
+
     function renderColorList() {
+      syncProductStockField();
       if (stagedColors.length === 0) {
         productColorList.innerHTML = '<span class="no-colors-text">No colors added yet.</span>';
         return;
@@ -1447,22 +1510,165 @@
         <span class="color-chip">
           <span class="color-chip-swatch" style="background:${escapeHtml(c.hex)}"></span>
           ${escapeHtml(c.name)}
+          <span class="color-chip-stock-wrap">stock
+            <input type="number" class="color-chip-stock${(parseInt(c.stock, 10) || 0) <= 0 ? ' zero' : ''}" data-index="${i}" min="0" step="1" value="${Math.max(0, parseInt(c.stock, 10) || 0)}" aria-label="Stock for ${escapeHtml(c.name)}">
+          </span>
           <button type="button" data-index="${i}" title="Remove color">&times;</button>
         </span>
       `).join('');
     }
 
-    productColorAddBtn.addEventListener('click', () => {
-      const hex = productColorSwatch.value || '#000000';
-      const name = productColorName.value.trim() || hex.toUpperCase();
-      if (stagedColors.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-        showFeedback(productFeedback, `"${name}" is already in the list.`, true);
+    // Live-update without re-rendering, so the field keeps focus while typing.
+    productColorList.addEventListener('input', (e) => {
+      const inp = e.target.closest('.color-chip-stock');
+      if (!inp) return;
+      const i = parseInt(inp.dataset.index, 10);
+      if (!stagedColors[i]) return;
+      const n = Math.max(0, parseInt(inp.value, 10) || 0);
+      stagedColors[i].stock = n;
+      inp.classList.toggle('zero', n <= 0);
+      productStockInput.value = colorsTotalStock(stagedColors);
+    });
+
+    // ---------- Color search ----------
+    // Named colors the owner can pick from. Saved on the product as { name, hex }.
+    const COLOR_LIBRARY = [
+      ['Alice Blue','#f0f8ff'],['Antique White','#faebd7'],['Aqua','#00ffff'],['Aquamarine','#7fffd4'],['Auburn','#922724'],
+      ['Azure','#f0ffff'],['Beige','#f5f5dc'],['Bisque','#ffe4c4'],['Black','#000000'],['Blanched Almond','#ffebcd'],
+      ['Blonde','#faf0be'],['Blue','#0000ff'],['Blue Violet','#8a2be2'],['Blush','#de5d83'],['Bronze','#cd7f32'],
+      ['Brown','#a52a2a'],['Burgundy','#800020'],['Burly Wood','#deb887'],['Cadet Blue','#5f9ea0'],['Camel','#c19a6b'],
+      ['Caramel','#af6f09'],['Champagne','#f7e7ce'],['Charcoal','#36454f'],['Chartreuse','#7fff00'],['Chocolate','#d2691e'],
+      ['Cocoa','#875f42'],['Coffee','#6f4e37'],['Copper','#b87333'],['Coral','#ff7f50'],['Cornflower Blue','#6495ed'],
+      ['Cornsilk','#fff8dc'],['Cream','#fffdd0'],['Crimson','#dc143c'],['Cyan','#00ffff'],['Dark Blue','#00008b'],
+      ['Dark Cyan','#008b8b'],['Dark Goldenrod','#b8860b'],['Dark Gray','#a9a9a9'],['Dark Green','#006400'],['Dark Khaki','#bdb76b'],
+      ['Dark Magenta','#8b008b'],['Dark Olive Green','#556b2f'],['Dark Orange','#ff8c00'],['Dark Orchid','#9932cc'],['Dark Red','#8b0000'],
+      ['Dark Salmon','#e9967a'],['Dark Sea Green','#8fbc8f'],['Dark Slate Blue','#483d8b'],['Dark Slate Gray','#2f4f4f'],['Dark Turquoise','#00ced1'],
+      ['Dark Violet','#9400d3'],['Deep Pink','#ff1493'],['Deep Sky Blue','#00bfff'],['Dim Gray','#696969'],['Dodger Blue','#1e90ff'],
+      ['Emerald','#50c878'],['Espresso','#3c2415'],['Fire Brick','#b22222'],['Forest Green','#228b22'],['Fuchsia','#ff00ff'],
+      ['Gainsboro','#dcdcdc'],['Gold','#ffd700'],['Goldenrod','#daa520'],['Gray','#808080'],['Green','#008000'],
+      ['Green Yellow','#adff2f'],['Honeydew','#f0fff0'],['Hot Pink','#ff69b4'],['Indian Red','#cd5c5c'],['Indigo','#4b0082'],
+      ['Ivory','#fffff0'],['Khaki','#f0e68c'],['Lavender','#e6e6fa'],['Lavender Blush','#fff0f5'],['Lawn Green','#7cfc00'],
+      ['Lemon Chiffon','#fffacd'],['Light Blue','#add8e6'],['Light Coral','#f08080'],['Light Cyan','#e0ffff'],['Light Gray','#d3d3d3'],
+      ['Light Green','#90ee90'],['Light Pink','#ffb6c1'],['Light Salmon','#ffa07a'],['Light Sea Green','#20b2aa'],['Light Sky Blue','#87cefa'],
+      ['Light Slate Gray','#778899'],['Light Steel Blue','#b0c4de'],['Light Yellow','#ffffe0'],['Lilac','#c8a2c8'],['Lime','#00ff00'],
+      ['Lime Green','#32cd32'],['Linen','#faf0e6'],['Magenta','#ff00ff'],['Maroon','#800000'],['Mauve','#e0b0ff'],
+      ['Medium Blue','#0000cd'],['Medium Orchid','#ba55d3'],['Medium Purple','#9370db'],['Medium Sea Green','#3cb371'],['Medium Turquoise','#48d1cc'],
+      ['Midnight Blue','#191970'],['Mint','#98ff98'],['Mint Cream','#f5fffa'],['Misty Rose','#ffe4e1'],['Moccasin','#ffe4b5'],
+      ['Mustard','#e1ad01'],['Navy','#000080'],['Nude','#e3bc9a'],['Old Lace','#fdf5e6'],['Olive','#808000'],
+      ['Olive Drab','#6b8e23'],['Orange','#ffa500'],['Orange Red','#ff4500'],['Orchid','#da70d6'],['Pale Goldenrod','#eee8aa'],
+      ['Pale Green','#98fb98'],['Pale Turquoise','#afeeee'],['Pale Violet Red','#db7093'],['Peach','#ffe5b4'],['Peach Puff','#ffdab9'],
+      ['Peru','#cd853f'],['Pink','#ffc0cb'],['Platinum','#e5e4e2'],['Plum','#dda0dd'],['Powder Blue','#b0e0e6'],
+      ['Purple','#800080'],['Red','#ff0000'],['Rose','#e8778f'],['Rose Gold','#b76e79'],['Rosy Brown','#bc8f8f'],
+      ['Royal Blue','#4169e1'],['Saddle Brown','#8b4513'],['Sage','#9caf88'],['Salmon','#fa8072'],['Sandy Brown','#f4a460'],
+      ['Sea Green','#2e8b57'],['Sea Shell','#fff5ee'],['Sienna','#a0522d'],['Silver','#c0c0c0'],['Sky Blue','#87ceeb'],
+      ['Slate Blue','#6a5acd'],['Slate Gray','#708090'],['Snow','#fffafa'],['Spring Green','#00ff7f'],['Steel Blue','#4682b4'],
+      ['Tan','#d2b48c'],['Tangerine','#f28500'],['Taupe','#8b8589'],['Teal','#008080'],['Terracotta','#e2725b'],
+      ['Thistle','#d8bfd8'],['Tomato','#ff6347'],['Turquoise','#40e0d0'],['Violet','#ee82ee'],['Wheat','#f5deb3'],
+      ['White','#ffffff'],['White Smoke','#f5f5f5'],['Wine','#722f37'],['Yellow','#ffff00'],['Yellow Green','#9acd32']
+    ].map(([name, hex]) => ({ name, hex, lower: name.toLowerCase() }));
+
+    let colorMatches = [];   // colors currently shown in the dropdown
+    let colorActiveIndex = -1;
+
+    function isColorAdded(c) {
+      return stagedColors.some(x => x.name.toLowerCase() === c.lower);
+    }
+
+    // Rank: name starts with the query (0) > a later word starts with it (1) > contains it (2).
+    function searchColors(q) {
+      q = q.trim().toLowerCase();
+      if (!q) return COLOR_LIBRARY.slice();
+      const out = [];
+      COLOR_LIBRARY.forEach(c => {
+        let rank = -1;
+        if (c.lower.startsWith(q)) rank = 0;
+        else if (c.lower.split(' ').some(w => w.startsWith(q))) rank = 1;
+        else if (c.lower.includes(q)) rank = 2;
+        if (rank >= 0) out.push({ c, rank });
+      });
+      out.sort((a, b) => a.rank - b.rank || a.c.name.localeCompare(b.c.name));
+      return out.map(o => o.c);
+    }
+
+    function highlightMatch(name, q) {
+      q = q.trim();
+      const i = q ? name.toLowerCase().indexOf(q.toLowerCase()) : -1;
+      if (i < 0) return escapeHtml(name);
+      return escapeHtml(name.slice(0, i)) + '<mark>' + escapeHtml(name.slice(i, i + q.length)) + '</mark>' + escapeHtml(name.slice(i + q.length));
+    }
+
+    function renderColorResults() {
+      const q = productColorSearch.value;
+      colorMatches = searchColors(q);
+      if (colorMatches.length === 0) {
+        colorActiveIndex = -1;
+        productColorResults.innerHTML = `<div class="color-results-empty">No colors match &ldquo;${escapeHtml(q.trim())}&rdquo;.</div>`;
         return;
       }
-      stagedColors.push({ name, hex });
-      productColorName.value = '';
+      // Keep the highlighted row on the first not-yet-added match so Enter adds something useful.
+      colorActiveIndex = colorMatches.findIndex(c => !isColorAdded(c));
+      productColorResults.innerHTML = colorMatches.map((c, i) => {
+        const added = isColorAdded(c);
+        return `<button type="button" class="color-option${added ? ' added' : ''}${i === colorActiveIndex ? ' active' : ''}" role="option" data-index="${i}"${added ? ' aria-disabled="true"' : ''}>
+          <span class="color-option-swatch" style="background:${escapeHtml(c.hex)}"></span>
+          <span class="color-option-name">${highlightMatch(c.name, q)}</span>
+          <span class="color-option-hex">${added ? 'Added' : escapeHtml(c.hex.toUpperCase())}</span>
+        </button>`;
+      }).join('');
+    }
+
+    function openColorResults() {
+      renderColorResults();
+      productColorResults.classList.add('open');
+      productColorSearch.setAttribute('aria-expanded', 'true');
+      productColorResults.scrollTop = 0;
+    }
+    function closeColorResults() {
+      productColorResults.classList.remove('open');
+      productColorSearch.setAttribute('aria-expanded', 'false');
+    }
+
+    function setActiveColor(i) {
+      const rows = productColorResults.querySelectorAll('.color-option');
+      if (!rows.length) return;
+      colorActiveIndex = (i + rows.length) % rows.length;
+      rows.forEach((r, idx) => r.classList.toggle('active', idx === colorActiveIndex));
+      rows[colorActiveIndex].scrollIntoView({ block: 'nearest' });
+    }
+
+    function addColorFromLibrary(c) {
+      if (isColorAdded(c)) return;
+      stagedColors.push({ name: c.name, hex: c.hex, stock: 0 });
       renderColorList();
       showFeedback(productFeedback, '');
+      productColorSearch.value = '';
+      closeColorResults();
+    }
+
+    productColorSearch.addEventListener('focus', openColorResults);
+    productColorSearch.addEventListener('input', openColorResults);
+    productColorSearch.addEventListener('keydown', (e) => {
+      if (!productColorResults.classList.contains('open')) {
+        if (e.key === 'ArrowDown') { openColorResults(); e.preventDefault(); }
+        return;
+      }
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActiveColor(colorActiveIndex + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveColor(colorActiveIndex - 1); }
+      else if (e.key === 'Enter') {
+        e.preventDefault(); // never submit the product form from here
+        if (colorActiveIndex >= 0 && colorMatches[colorActiveIndex]) addColorFromLibrary(colorMatches[colorActiveIndex]);
+      }
+      else if (e.key === 'Escape') closeColorResults();
+    });
+    // pointerdown-free: a plain click on a row adds it (works for touch and mouse)
+    productColorResults.addEventListener('click', (e) => {
+      const row = e.target.closest('.color-option');
+      if (!row) return;
+      const c = colorMatches[parseInt(row.dataset.index, 10)];
+      if (c) addColorFromLibrary(c);
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.color-search')) closeColorResults();
     });
 
     productColorList.addEventListener('click', (e) => {
@@ -1483,6 +1689,7 @@
       stagedColors = [];
       renderPhotoPreviewGrid();
       renderColorList();
+      closeColorResults();
     }
     productCancelBtn.addEventListener('click', resetProductForm);
     renderPhotoPreviewGrid();
@@ -1495,7 +1702,9 @@
       const description = productDescInput.value.trim();
       const category = productCategoryInput.value;
       const price = parseFloat(productPriceInput.value);
-      const stock = parseInt(productStockInput.value, 10);
+      const colorsToSave = stagedColors.map(c => ({ name: c.name, hex: c.hex, stock: Math.max(0, parseInt(c.stock, 10) || 0) }));
+      // With colors, the product's stock is always the sum of its colors.
+      const stock = colorsToSave.length ? colorsTotalStock(colorsToSave) : parseInt(productStockInput.value, 10);
       const editingId = productIdInput.value;
 
       if (!name || !description || isNaN(price) || price < 0 || isNaN(stock) || stock < 0) return;
@@ -1510,7 +1719,7 @@
         for (const item of stagedPhotos) {
           imageUrls.push(item.type === 'existing' ? item.url : await uploadToCloudinary(item.file));
         }
-        const colors = stagedColors.map(c => ({ name: c.name, hex: c.hex }));
+        const colors = colorsToSave;
 
         if (editingId) {
           await updateDoc(doc(db, 'products', editingId), {
@@ -1551,7 +1760,7 @@
         stagedPhotos.forEach(item => { if (item.type === 'file') URL.revokeObjectURL(item.objectUrl); });
         const existingUrls = Array.isArray(p.imageUrls) && p.imageUrls.length ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : []);
         stagedPhotos = existingUrls.map(url => ({ type: 'existing', url }));
-        stagedColors = Array.isArray(p.colors) ? p.colors.map(c => ({ name: c.name, hex: c.hex })) : [];
+        stagedColors = Array.isArray(p.colors) ? p.colors.map(c => ({ name: c.name, hex: c.hex, stock: Math.max(0, parseInt(c.stock, 10) || 0) })) : [];
         renderPhotoPreviewGrid();
         renderColorList();
 
@@ -1577,6 +1786,24 @@
     });
 
     productsBody.addEventListener('change', async (e) => {
+      if (e.target.classList.contains('color-stock-input')) {
+        if (!can('products')) return;
+        const id = e.target.dataset.id;
+        const idx = parseInt(e.target.dataset.colorIndex, 10);
+        const n = parseInt(e.target.value, 10);
+        const p = productsCache.find(x => x.id === id);
+        if (!p || !Array.isArray(p.colors) || !p.colors[idx] || isNaN(n) || n < 0) return;
+        const colors = p.colors.map((c, i) => ({ name: c.name, hex: c.hex, stock: i === idx ? n : Math.max(0, parseInt(c.stock, 10) || 0) }));
+        const total = colorsTotalStock(colors);
+        try {
+          await updateDoc(doc(db, 'products', id), { colors, stock: total });
+          logActivity('product.stock', `Set ${p.colors[idx].name} stock for "${p.name}" to ${n}`);
+        } catch (err) {
+          showFeedback(productFeedback, `Couldn't update stock: ${err.message}`, true);
+          reportFirebaseError(`products/${id} updateDoc (color stock)`, err);
+        }
+        return;
+      }
       if (!e.target.classList.contains('stock-input') || !can('products')) return;
       const id = e.target.dataset.id;
       const newStock = parseInt(e.target.value, 10);
