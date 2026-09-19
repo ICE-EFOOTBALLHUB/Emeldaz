@@ -261,6 +261,10 @@
   .product-swatches { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
   .product-swatch-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); display: inline-block; }
   .no-colors-text { font-size: 12px; color: #948a7c; }
+  .order-color { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+  .fulfil-tag { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 9px; display: inline-block; background: var(--beige-light); color: #3b2f22; border: 1px solid #d8cbb0; }
+  .fulfil-tag.delivery { background: var(--brown-mid); border-color: var(--brown-mid); color: #fff; }
+  .order-address { white-space: normal; min-width: 180px; max-width: 260px; margin-top: 6px; line-height: 1.4; color: #3b2f22; }
   .cell-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .row-edit-btn {
     font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
@@ -463,7 +467,7 @@
       <div class="table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>Customer</th><th>Item</th><th>Qty</th><th>Total</th><th>Status</th><th></th></tr>
+            <tr><th>Customer</th><th>Item</th><th>Qty</th><th>Total</th><th>Delivery</th><th>Status</th><th></th></tr>
           </thead>
           <tbody id="ordersBody"></tbody>
         </table>
@@ -1267,7 +1271,7 @@
       ordersCount.textContent = `${ordersCache.length} order${ordersCache.length === 1 ? '' : 's'}`;
       ordersBody.innerHTML = '';
       if (ordersCache.length === 0) {
-        ordersBody.innerHTML = '<tr class="empty-row"><td colspan="6">No orders yet.</td></tr>';
+        ordersBody.innerHTML = '<tr class="empty-row"><td colspan="7">No orders yet.</td></tr>';
         return;
       }
       const ordersOk = can('orders');
@@ -1276,9 +1280,12 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${escapeHtml(o.customerName || '')}<span class="cell-sub">${escapeHtml(o.customerPhone || '')}</span></td>
-          <td>${escapeHtml(o.productName || '')}</td>
+          <td>${escapeHtml(o.productName || '')}${o.color && o.color.name ? `<span class="cell-sub order-color"><span class="product-swatch-dot" style="background:${escapeHtml(o.color.hex || '#ccc')}"></span>${escapeHtml(o.color.name)}</span>` : ''}</td>
           <td>${escapeHtml(String(o.qty || ''))}</td>
           <td class="cell-strong">&pound;${Number(o.total || 0).toFixed(2)}</td>
+          <td class="order-fulfil">${o.fulfilment === 'delivery'
+              ? `<span class="fulfil-tag delivery">Delivery</span><span class="cell-sub order-address">${escapeHtml(o.address || 'No address given')}</span>`
+              : o.fulfilment === 'pickup' ? '<span class="fulfil-tag">Pickup</span>' : '<span class="no-colors-text">&mdash;</span>'}</td>
           <td>
             <select class="status-select st-${status}" data-id="${o.id}" ${ordersOk ? '' : 'disabled'}>
               ${ORDER_STATUSES.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${statusLabel(s)}</option>`).join('')}
@@ -1295,7 +1302,7 @@
         ordersCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderOrders();
       }, (err) => {
-        ordersBody.innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load orders: ${err.message}</td></tr>`;
+        ordersBody.innerHTML = `<tr class="empty-row"><td colspan="7">Couldn't load orders: ${err.message}</td></tr>`;
         reportFirebaseError('orders listener', err);
       });
     }

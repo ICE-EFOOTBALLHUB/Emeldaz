@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products — Emeldaz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     RESET + THEME — same variables as index.html
+     ============================================================ */
+  :root {
+    color-scheme: light;
+    --beige: #e8dcc8;
+    --beige-light: #f3ece0;
+    --beige-dark: #d8c3a0;
+    --brown-text: #3b2f22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #111;
+    background: #fff;
+  }
+
+  /* ============================================================
+     NAVBAR — copied from index.html so both pages match exactly
+     ============================================================ */
+  .navbar {
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.25rem;
+    position: relative;
+    z-index: 100;
+  }
+  .navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+  }
+  .navbar .logo img {
+    display: block;
+    height: 32px;
+    width: auto;
+  }
+  .navbar .logo-text {
+    font-family: "Dancing Script", "Brush Script MT", cursive;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .navbar .nav-links a {
+    color: #fff;
+    text-decoration: none;
+  }
+  .navbar .nav-links a.active {
+    color: var(--beige);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .nav-toggle { display: none; }
+  .nav-toggle-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .nav-toggle-label span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: #fff;
+  }
+  .navbar .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #000;
+    padding: 0 1.25rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease, padding 0.2s ease;
+    z-index: 100;
+  }
+  .nav-toggle:checked ~ .nav-links {
+    max-height: 300px;
+    padding: 1rem 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .nav-toggle-label { display: none; }
+    .navbar .nav-links {
+      position: static;
+      flex-direction: row;
+      gap: 1.5rem;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+      background: transparent;
+    }
+  }
+
+  /* ============================================================
+     PAGE BANNER
+     ============================================================ */
+  .page-banner {
+    background: var(--beige);
+    padding: 2.5rem 1.25rem 2rem;
+    text-align: left;
+  }
+  .page-banner h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+  }
+  .page-banner p {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    color: #4a3f30;
+    max-width: 50ch;
+  }
+  @media (min-width: 768px) {
+    .page-banner { padding: 4rem 3rem 3rem; }
+    .page-banner h1 { font-size: 2.25rem; }
+    .page-banner p { font-size: 1.05rem; }
+  }
+
+
+  /* ============================================================
+     PRODUCT GRID
+     ============================================================ */
+  .products-section { padding: 2rem 1.25rem 3rem; }
+  .products-container { max-width: 1000px; margin: 0 auto; }
+  .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9rem; }
+  @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 1.1rem; } }
+  @media (min-width: 960px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
+  .product-card {
+    display: flex; flex-direction: column; text-align: left; font: inherit; color: inherit;
+    background: #fff; border: 2px solid var(--beige-dark); border-radius: 10px; overflow: hidden; cursor: pointer; padding: 0;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .product-card:hover { border-color: var(--brown-text); }
+  .product-card:active { transform: scale(0.985); }
+  .product-card-media { position: relative; aspect-ratio: 1 / 1; background: var(--beige-light); }
+  .product-card-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .product-card.is-soldout .product-card-media img { opacity: 0.45; }
+  .soldout-tag {
+    position: absolute; top: 0.5rem; left: 0.5rem; background: #000; color: #fff; font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.55rem; border-radius: 4px;
+  }
+  .product-card-body { padding: 0.7rem 0.75rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }
+  .product-card-name { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--brown-text); line-height: 1.25; }
+  .product-card-price { font-size: 0.95rem; font-weight: 600; color: #4a3f30; }
+  .card-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 0.2rem; }
+  .card-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); }
+  .grid-note { font-size: 0.95rem; color: #6b5c47; padding: 1.25rem; background: var(--beige-light); border-radius: 6px; grid-column: 1 / -1; }
+
+  /* ============================================================
+     SLIDE-UP SHEET
+     ============================================================ */
+  html.sheet-lock, html.sheet-lock body { overflow: hidden; }
+  .sheet-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; visibility: hidden;
+    transition: opacity 0.28s ease, visibility 0s linear 0.28s; z-index: 200;
+  }
+  .sheet-overlay.open { opacity: 1; visibility: visible; transition-delay: 0s; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; max-height: 92vh; max-height: 92dvh; background: #fff;
+    border-radius: 18px 18px 0 0; transform: translateY(100%); visibility: hidden;
+    transition: transform 0.34s cubic-bezier(0.22, 0.9, 0.3, 1), visibility 0s linear 0.34s;
+    z-index: 201; display: flex; flex-direction: column; box-shadow: 0 -8px 30px rgba(0,0,0,0.25);
+  }
+  .sheet.open { transform: translateY(0); visibility: visible; transition-delay: 0s; }
+  @media (min-width: 768px) { .sheet { left: 50%; right: auto; width: 560px; margin-left: -280px; } }
+  .sheet-handle { width: 42px; height: 5px; border-radius: 3px; background: #d8cbb0; margin: 9px auto 4px; flex-shrink: 0; }
+  .sheet-close {
+    position: absolute; top: 10px; right: 12px; z-index: 3; width: 36px; height: 36px; border-radius: 50%;
+    border: none; background: rgba(0,0,0,0.65); color: #fff; font-size: 1.4rem; line-height: 1; cursor: pointer;
+  }
+  .sheet-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)); }
+
+  .gallery { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; background: var(--beige-light); }
+  .gallery::-webkit-scrollbar { display: none; }
+  .gallery img { flex: 0 0 100%; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; scroll-snap-align: center; display: block; }
+  .gallery-noimg { flex: 0 0 100%; aspect-ratio: 16 / 9; background: var(--beige); }
+  .gallery-dots { display: flex; justify-content: center; gap: 6px; padding: 0.6rem 0 0; }
+  .gallery-dot { width: 7px; height: 7px; border-radius: 50%; background: #d8cbb0; transition: background 0.15s ease; }
+  .gallery-dot.active { background: var(--brown-text); }
+
+  .sheet-pad { padding: 1rem 1.25rem 0; }
+  .sheet-title { font-size: 1.25rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; color: var(--brown-text); }
+  .sheet-price { font-size: 1.15rem; font-weight: 700; color: #4a3f30; margin-top: 0.25rem; }
+  .sheet-desc { font-size: 0.95rem; line-height: 1.55; color: #4a3f30; margin-top: 0.8rem; }
+  .sheet-meta { margin-top: 0.9rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .meta-pill { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 4px; background: var(--beige-light); color: var(--brown-text); }
+  .meta-pill.soldout { background: #000; color: #fff; }
+  .meta-pill.low { background: #c98a2c; color: #000; }
+
+  .btn-primary {
+    width: 100%; margin-top: 1.25rem; padding: 0.95rem 1rem; font-size: 1rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--beige-light); background: var(--brown-text); border: 2px solid var(--brown-text); border-radius: 6px; cursor: pointer;
+  }
+  .btn-primary:disabled { background: #ccc; border-color: #ccc; color: #fff; cursor: not-allowed; }
+  .btn-secondary {
+    width: 100%; margin-top: 0.7rem; padding: 0.85rem 1rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--brown-text); background: transparent; border: 2px solid var(--brown-text); border-radius: 6px; cursor: pointer;
+  }
+
+  /* ---- order form ---- */
+  .sheet-back { background: none; border: none; font: inherit; font-size: 0.9rem; font-weight: 700; color: var(--brown-text); cursor: pointer; padding: 0.2rem 0; margin-bottom: 0.6rem; }
+  .form-head { display: flex; gap: 0.8rem; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--beige); margin-bottom: 1.1rem; padding-right: 2.6rem; }
+  .form-head img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; background: var(--beige-light); flex-shrink: 0; }
+  .form-head-name { font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--brown-text); }
+  .form-head-price { font-size: 0.9rem; color: #4a3f30; }
+  .field { margin-bottom: 1.1rem; }
+  .field > label, .field-label { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brown-text); margin-bottom: 0.45rem; }
+  .field input[type="text"], .field input[type="tel"], .field textarea {
+    width: 100%; padding: 0.75rem 0.85rem; font: inherit; font-size: 1rem; border: 2px solid var(--beige-dark); border-radius: 6px; background: #fff; color: #111;
+  }
+  .field textarea { min-height: 84px; resize: vertical; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--brown-text); }
+  .field-hint { font-size: 0.8rem; color: #6b5c47; margin-top: 0.4rem; }
+
+  .color-options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .color-opt {
+    display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; padding: 0.4rem 0.8rem 0.4rem 0.5rem; font: inherit; font-size: 0.9rem; color: #111;
+    background: #fff; border: 2px solid var(--beige-dark); border-radius: 999px; cursor: pointer;
+  }
+  .color-opt.selected { border-color: var(--brown-text); background: var(--beige-light); font-weight: 700; }
+  .color-opt-dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
+  .color-opt-left { font-size: 0.72rem; color: #a1291f; font-weight: 700; }
+  .color-opt.soldout { opacity: 0.5; cursor: not-allowed; text-decoration: line-through; }
+  .color-opt.soldout .color-opt-left { text-decoration: none; display: inline-block; color: #000; }
+
+  .qty-row { display: flex; align-items: center; gap: 0.6rem; }
+  .qty-btn { width: 44px; height: 44px; border: 2px solid var(--brown-text); background: #fff; color: var(--brown-text); font-size: 1.3rem; font-weight: 700; border-radius: 6px; cursor: pointer; line-height: 1; }
+  .qty-btn:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
+  .qty-row input[type="text"] { width: 64px; text-align: center; padding: 0.7rem 0.4rem; }
+
+  .pill-row { display: flex; gap: 0.6rem; }
+  .pill { flex: 1; position: relative; }
+  .pill input { position: absolute; opacity: 0; pointer-events: none; }
+  .pill span { display: block; text-align: center; padding: 0.8rem 0.5rem; border: 2px solid var(--beige-dark); border-radius: 6px; font-weight: 700; font-size: 0.9rem; cursor: pointer; background: #fff; }
+  .pill input:checked + span { border-color: var(--brown-text); background: var(--beige-light); color: var(--brown-text); }
+  .pill input:focus-visible + span { outline: 2px solid var(--brown-text); outline-offset: 2px; }
+
+  .total-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.9rem 0; border-top: 1px solid var(--beige); margin-top: 0.4rem; font-weight: 800; color: var(--brown-text); }
+  .total-row strong { font-size: 1.3rem; }
+  .form-feedback { font-size: 0.88rem; font-weight: 600; margin-top: 0.8rem; min-height: 1.2em; color: #4a3f30; }
+  .form-feedback.error { color: #b00020; }
+
+  .done-box { text-align: center; padding: 2.2rem 1.25rem 0; }
+  .done-check { width: 56px; height: 56px; border-radius: 50%; background: var(--brown-text); color: var(--beige-light); font-size: 1.7rem; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.9rem; }
+  .done-box h2 { font-size: 1.3rem; font-weight: 800; text-transform: uppercase; color: var(--brown-text); margin-bottom: 0.4rem; }
+  .done-box p { font-size: 0.95rem; color: #4a3f30; line-height: 1.5; }
+  .done-summary { text-align: left; margin: 1.2rem 0 0; padding: 1rem; background: var(--beige-light); border-radius: 8px; font-size: 0.92rem; color: #3b2f22; line-height: 1.7; }
+  .done-ref { display: inline-block; margin-top: 0.9rem; padding: 0.5rem 0.9rem; border: 2px dashed var(--brown-text); border-radius: 6px; font-weight: 800; color: var(--brown-text); }
+
+  /* ============================================================
+     FOOTER — copied from index.html
+     ============================================================ */
+  footer { background: var(--beige); }
+  .footer-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2.5rem 1.25rem 2rem;
+  }
+  .footer-logo img {
+    display: block;
+    height: 40px;
+    width: auto;
+    margin: 0 auto;
+  }
+  .footer-info { margin-top: 1.5rem; }
+  .footer-heading {
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--brown-text);
+    margin-bottom: 0.6rem;
+  }
+  .footer-info p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #4a3f30;
+  }
+  .footer-bottom {
+    border-top: 1px solid rgba(59, 47, 34, 0.2);
+    padding: 1rem 1.25rem;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+  }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <a href="index.html" class="logo">
+    <img src="logo.png" alt="Emeldaz logo">
+    <span class="logo-text">Emeldaz</span>
+  </a>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle">
+  <label for="nav-toggle" class="nav-toggle-label">
+    <span></span><span></span><span></span>
+  </label>
+
+  <nav class="nav-links">
+    <a href="book.html">Book Appointment</a>
+    <a href="order.html" class="active">Products</a>
+    <a href="book.html">Services</a>
+    <a href="#">Contact</a>
+    <a href="index.html#about">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="page-banner">
+    <h1>Products</h1>
+    <p>Tap a product to see more photos and details, then order it in a few taps — no account needed.</p>
+  </section>
+
+  <section class="products-section">
+    <div class="products-container">
+      <div class="product-grid" id="productGrid">
+        <p class="grid-note">Loading products&hellip;</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-logo">
+      <img src="logo.png" alt="Emeldaz Unisex Salon &amp; Spa logo">
+    </div>
+    <div class="footer-info">
+      <h3 class="footer-heading">Visit Us</h3>
+      <p>
+        202 Peter Odili Road, Port Harcourt, Nigeria<br>
+        +234 904 370 9147<br>
+        Available for bookings via WhatsApp
+      </p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; EMELDAZ UNISEX SALON 2026</p>
+  </div>
+</footer>
+
+<!-- Slide-up product sheet -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Product details" aria-hidden="true">
+  <div class="sheet-handle"></div>
+  <button type="button" class="sheet-close" id="sheetClose" aria-label="Close">&times;</button>
+  <div class="sheet-scroll" id="sheetBody"></div>
+</div>
+
+<script type="module">
+  import {
+    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml
+  } from './js/firebase-init.js';
+
+  const productsCol = collection(db, 'products');
+  const ordersCol = collection(db, 'orders');
+  const PICKUP_ADDRESS = '202 Peter Odili Road, Port Harcourt';
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+  const money = (n) => '\u00A3' + (Number(n) || 0).toFixed(2);
+  const toInt = (v) => Math.max(0, parseInt(v, 10) || 0);
+  const imagesOf = (p) => (Array.isArray(p.imageUrls) && p.imageUrls.length) ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : []);
+  const hasColors = (p) => Array.isArray(p.colors) && p.colors.length > 0;
+  // Colors saved before per-color stock existed have no `stock` — they read as 0, same as admin.html.
+  const colorStock = (c) => toInt(c && c.stock);
+  const totalAvailable = (p) => hasColors(p) ? p.colors.reduce((s, c) => s + colorStock(c), 0) : toInt(p.stock);
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  let productsCache = [];
+  let openId = null;                       // product currently in the sheet
+  let view = 'details';                    // 'details' | 'form' | 'done'
+  let sel = { colorIndex: null, qty: 1, fulfilment: 'pickup' };
+  let lastFocus = null;
+
+  const grid = document.getElementById('productGrid');
+  const overlay = document.getElementById('sheetOverlay');
+  const sheet = document.getElementById('sheet');
+  const sheetBody = document.getElementById('sheetBody');
+  const sheetClose = document.getElementById('sheetClose');
+
+  const currentProduct = () => productsCache.find(p => p.id === openId) || null;
+
+  // ============================================================
+  // PRODUCT GRID (live)
+  // ============================================================
+  function renderGrid() {
+    if (productsCache.length === 0) {
+      grid.innerHTML = '<p class="grid-note">No products are available right now. Please check back soon.</p>';
+      return;
+    }
+    grid.innerHTML = productsCache.map(p => {
+      const img = imagesOf(p)[0];
+      const soldOut = totalAvailable(p) <= 0;
+      const dots = hasColors(p)
+        ? `<div class="card-dots">${p.colors.filter(c => colorStock(c) > 0).map(c => `<span class="card-dot" style="background:${escapeHtml(c.hex)}" title="${escapeHtml(c.name)}"></span>`).join('')}</div>` : '';
+      return `<button type="button" class="product-card${soldOut ? ' is-soldout' : ''}" data-id="${escapeHtml(p.id)}">
+        <div class="product-card-media">
+          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.name || '')}" loading="lazy">` : ''}
+          ${soldOut ? '<span class="soldout-tag">Sold out</span>' : ''}
+        </div>
+        <div class="product-card-body">
+          <span class="product-card-name">${escapeHtml(p.name || '')}</span>
+          <span class="product-card-price">${money(p.price)}</span>
+          ${dots}
+        </div>
+      </button>`;
+    }).join('');
+  }
+
+  grid.addEventListener('click', (e) => {
+    const card = e.target.closest('.product-card');
+    if (card) openSheet(card.dataset.id);
+  });
+
+  onSnapshot(query(productsCol, orderBy('createdAt', 'desc')), (snap) => {
+    productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderGrid();
+    if (openId && view !== 'done') refreshOpenSheet();
+  }, (err) => {
+    console.error('products listener failed', err);
+    grid.innerHTML = '<p class="grid-note">Couldn\u2019t load products. Please refresh the page.</p>';
+  });
+
+  // ============================================================
+  // SHEET OPEN / CLOSE
+  // ============================================================
+  function openSheet(id) {
+    openId = id;
+    view = 'details';
+    sel = { colorIndex: null, qty: 1, fulfilment: 'pickup' };
+    lastFocus = document.activeElement;
+    renderSheet();
+    sheetBody.scrollTop = 0;
+    document.documentElement.classList.add('sheet-lock');
+    overlay.classList.add('open');
+    sheet.classList.add('open');
+    sheet.setAttribute('aria-hidden', 'false');
+    setTimeout(() => sheetClose.focus({ preventScroll: true }), 50);
+  }
+
+  function closeSheet() {
+    overlay.classList.remove('open');
+    sheet.classList.remove('open');
+    sheet.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('sheet-lock');
+    openId = null;
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  }
+
+  sheetClose.addEventListener('click', closeSheet);
+  overlay.addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openId) closeSheet(); });
+
+  // ============================================================
+  // SHEET RENDERING
+  // ============================================================
+  function renderSheet() {
+    const p = currentProduct();
+    if (!p) { closeSheet(); return; }
+    if (view === 'details') sheetBody.innerHTML = detailsHtml(p);
+    else if (view === 'form') { sheetBody.innerHTML = formHtml(p); syncForm(); }
+  }
+
+  function detailsHtml(p) {
+    const imgs = imagesOf(p);
+    const total = totalAvailable(p);
+    const gallery = imgs.length
+      ? `<div class="gallery" id="gallery">${imgs.map((u, i) => `<img src="${escapeHtml(u)}" alt="${escapeHtml(p.name || '')} photo ${i + 1}">`).join('')}</div>
+         ${imgs.length > 1 ? `<div class="gallery-dots" id="galleryDots">${imgs.map((_, i) => `<span class="gallery-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>` : ''}`
+      : '<div class="gallery"><div class="gallery-noimg"></div></div>';
+    const stockPill = total <= 0 ? '<span class="meta-pill soldout">Sold out</span>'
+      : total <= 5 ? `<span class="meta-pill low">Only ${total} left</span>`
+      : '<span class="meta-pill">In stock</span>';
+    const colorPills = hasColors(p)
+      ? p.colors.map(c => `<span class="meta-pill" style="${colorStock(c) <= 0 ? 'text-decoration:line-through;opacity:.55' : ''}">${escapeHtml(c.name)}</span>`).join('') : '';
+    return `${gallery}
+      <div class="sheet-pad">
+        <h2 class="sheet-title">${escapeHtml(p.name || '')}</h2>
+        <div class="sheet-price">${money(p.price)}</div>
+        <p class="sheet-desc">${escapeHtml(p.description || '')}</p>
+        <div class="sheet-meta">${stockPill}${colorPills}</div>
+        <button type="button" class="btn-primary" data-action="order"${total <= 0 ? ' disabled' : ''}>${total <= 0 ? 'Sold out' : 'Order'}</button>
+      </div>`;
+  }
+
+  function formHtml(p) {
+    const img = imagesOf(p)[0];
+    return `<div class="sheet-pad">
+      <button type="button" class="sheet-back" data-action="back">&larr; Back</button>
+      <div class="form-head">
+        ${img ? `<img src="${escapeHtml(img)}" alt="">` : ''}
+        <div><div class="form-head-name">${escapeHtml(p.name || '')}</div><div class="form-head-price">${money(p.price)} each</div></div>
+      </div>
+      <form id="orderForm" novalidate autocomplete="on">
+        ${hasColors(p) ? `<div class="field"><span class="field-label">Color</span><div class="color-options" id="colorOptions"></div></div>` : ''}
+        <div class="field">
+          <span class="field-label">Quantity</span>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" data-action="qty-minus" aria-label="Fewer">&minus;</button>
+            <input type="text" id="qtyInput" inputmode="numeric" value="${sel.qty}" aria-label="Quantity">
+            <button type="button" class="qty-btn" data-action="qty-plus" aria-label="More">+</button>
+          </div>
+          <p class="field-hint" id="qtyNote"></p>
+        </div>
+        <div class="field">
+          <span class="field-label">How would you like to receive it?</span>
+          <div class="pill-row">
+            <label class="pill"><input type="radio" name="fulfilment" value="pickup"${sel.fulfilment === 'pickup' ? ' checked' : ''}><span>Pickup</span></label>
+            <label class="pill"><input type="radio" name="fulfilment" value="delivery"${sel.fulfilment === 'delivery' ? ' checked' : ''}><span>Delivery</span></label>
+          </div>
+          <p class="field-hint" id="pickupHint"${sel.fulfilment === 'delivery' ? ' hidden' : ''}>Collect from the salon: ${escapeHtml(PICKUP_ADDRESS)}.</p>
+        </div>
+        <div class="field" id="addressField"${sel.fulfilment === 'delivery' ? '' : ' hidden'}>
+          <label for="orderAddress">Delivery address</label>
+          <textarea id="orderAddress" maxlength="300" placeholder="Where should we deliver it?"></textarea>
+        </div>
+        <div class="field">
+          <label for="orderName">Your name or handle</label>
+          <input type="text" id="orderName" maxlength="40" placeholder="e.g. Sarah" autocomplete="name">
+          <p class="field-hint">Remember this &mdash; it's how you'll find your order later.</p>
+        </div>
+        <div class="field">
+          <label for="orderPhone">Phone number</label>
+          <input type="tel" id="orderPhone" maxlength="25" placeholder="e.g. 0904 370 9147" autocomplete="tel">
+        </div>
+        <div class="total-row"><span>Total</span><strong id="orderTotal">${money(0)}</strong></div>
+        <button type="submit" class="btn-primary" id="placeOrderBtn" style="margin-top:0.4rem">Place Order</button>
+        <p class="form-feedback" id="orderFeedback" role="status"></p>
+      </form>
+    </div>`;
+  }
+
+  // ---- availability for the current selection ----
+  function maxQtyFor(p) {
+    if (hasColors(p)) {
+      if (sel.colorIndex == null || !p.colors[sel.colorIndex]) return Math.max(...p.colors.map(colorStock), 0);
+      return colorStock(p.colors[sel.colorIndex]);
+    }
+    return toInt(p.stock);
+  }
+
+  // Keeps the form in step with the selection and with live stock changes, without
+  // re-rendering the whole form (so nothing the customer typed is lost).
+  function syncForm() {
+    const p = currentProduct();
+    const form = document.getElementById('orderForm');
+    if (!p || !form) return;
+
+    if (hasColors(p)) {
+      if (sel.colorIndex != null && (!p.colors[sel.colorIndex] || colorStock(p.colors[sel.colorIndex]) <= 0)) sel.colorIndex = null;
+      document.getElementById('colorOptions').innerHTML = p.colors.map((c, i) => {
+        const n = colorStock(c);
+        return `<button type="button" class="color-opt${i === sel.colorIndex ? ' selected' : ''}${n <= 0 ? ' soldout' : ''}" data-action="pick-color" data-index="${i}"${n <= 0 ? ' disabled' : ''} aria-pressed="${i === sel.colorIndex}">
+          <span class="color-opt-dot" style="background:${escapeHtml(c.hex)}"></span>${escapeHtml(c.name)}
+          ${n <= 0 ? '<span class="color-opt-left">Sold out</span>' : (n <= 5 ? `<span class="color-opt-left">${n} left</span>` : '')}
+        </button>`;
+      }).join('');
+    }
+
+    const max = maxQtyFor(p);
+    sel.qty = Math.min(Math.max(1, sel.qty), Math.max(1, max));
+    const qtyInput = document.getElementById('qtyInput');
+    if (document.activeElement !== qtyInput) qtyInput.value = sel.qty;
+    document.querySelector('[data-action="qty-minus"]').disabled = sel.qty <= 1;
+    document.querySelector('[data-action="qty-plus"]').disabled = sel.qty >= max;
+
+    const note = document.getElementById('qtyNote');
+    if (hasColors(p) && sel.colorIndex == null) note.textContent = 'Pick a color to see how many are available.';
+    else if (max <= 0) note.textContent = 'Sold out.';
+    else note.textContent = `${max} available${hasColors(p) ? ' in this color' : ''}.`;
+
+    document.getElementById('orderTotal').textContent = money((Number(p.price) || 0) * sel.qty);
+    document.getElementById('placeOrderBtn').disabled = totalAvailable(p) <= 0;
+  }
+
+  // Live stock update arrived while the sheet is open.
+  function refreshOpenSheet() {
+    const p = currentProduct();
+    if (!p) {
+      if (view === 'form') showFeedback('This product is no longer available.', true);
+      else closeSheet();
+      return;
+    }
+    if (view === 'details') {
+      // Re-render only if the customer isn't mid-swipe through the gallery; cheap and rare.
+      const y = sheetBody.scrollTop;
+      const g = document.getElementById('gallery');
+      const gx = g ? g.scrollLeft : 0;
+      sheetBody.innerHTML = detailsHtml(p);
+      sheetBody.scrollTop = y;
+      const g2 = document.getElementById('gallery');
+      if (g2) g2.scrollLeft = gx;
+    } else if (view === 'form') syncForm();
+  }
+
+  function showFeedback(msg, isError) {
+    const el = document.getElementById('orderFeedback');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.classList.toggle('error', !!isError);
+  }
+
+  // ============================================================
+  // SHEET EVENTS (delegated)
+  // ============================================================
+  sheetBody.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const p = currentProduct();
+    switch (btn.dataset.action) {
+      case 'order': view = 'form'; renderSheet(); sheetBody.scrollTop = 0; break;
+      case 'back': view = 'details'; renderSheet(); sheetBody.scrollTop = 0; break;
+      case 'done': closeSheet(); break;
+      case 'pick-color': sel.colorIndex = parseInt(btn.dataset.index, 10); showFeedback(''); syncForm(); break;
+      case 'qty-minus': sel.qty = Math.max(1, sel.qty - 1); syncForm(); break;
+      case 'qty-plus': if (p) { sel.qty = Math.min(Math.max(1, maxQtyFor(p)), sel.qty + 1); syncForm(); } break;
+    }
+  });
+
+  sheetBody.addEventListener('input', (e) => {
+    if (e.target.id === 'qtyInput') {
+      const v = parseInt(e.target.value.replace(/\D/g, ''), 10);
+      if (!isNaN(v)) { sel.qty = v; syncForm(); }
+    }
+  });
+  sheetBody.addEventListener('focusout', (e) => {
+    if (e.target.id === 'qtyInput') { syncForm(); e.target.value = sel.qty; }
+  });
+  sheetBody.addEventListener('change', (e) => {
+    if (e.target.name === 'fulfilment') {
+      sel.fulfilment = e.target.value;
+      const isDelivery = sel.fulfilment === 'delivery';
+      document.getElementById('addressField').hidden = !isDelivery;
+      document.getElementById('pickupHint').hidden = isDelivery;
+    }
+  });
+
+  // gallery dots follow the swipe (scroll doesn't bubble, so listen in the capture phase)
+  sheetBody.addEventListener('scroll', (e) => {
+    if (e.target.id !== 'gallery') return;
+    const i = Math.round(e.target.scrollLeft / (e.target.clientWidth || 1));
+    document.querySelectorAll('#galleryDots .gallery-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
+  }, true);
+
+  sheetBody.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (e.target.id !== 'orderForm') return;
+    const p = currentProduct();
+    if (!p) return;
+
+    const name = document.getElementById('orderName').value.trim();
+    const phone = document.getElementById('orderPhone').value.trim();
+    const address = document.getElementById('orderAddress').value.trim();
+    const fulfilment = sel.fulfilment;
+    const qty = sel.qty;
+
+    if (hasColors(p) && sel.colorIndex == null) { showFeedback('Please choose a color.', true); return; }
+    if (!Number.isInteger(qty) || qty < 1) { showFeedback('Please choose a quantity.', true); return; }
+    if (fulfilment === 'delivery' && !address) { showFeedback('Please enter a delivery address.', true); return; }
+    if (!name) { showFeedback('Please enter your name or handle.', true); return; }
+    if (!phone) { showFeedback('Please enter your phone number.', true); return; }
+
+    const chosenColor = hasColors(p) ? { name: p.colors[sel.colorIndex].name, hex: p.colors[sel.colorIndex].hex } : null;
+    const btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true;
+    btn.textContent = 'Placing order\u2026';
+    showFeedback('');
+
+    try {
+      const orderRef = doc(ordersCol);
+      const placed = await runTransaction(db, async (tx) => {
+        // Re-read the product inside the transaction so two customers can't both take the last one.
+        const productRef = doc(db, 'products', p.id);
+        const snap = await tx.get(productRef);
+        if (!snap.exists()) throw new Error('This product is no longer available.');
+        const cur = snap.data();
+
+        if (chosenColor) {
+          if (!hasColors(cur)) throw new Error('This product\u2019s options just changed. Please close and try again.');
+          const idx = cur.colors.findIndex(c => c.name === chosenColor.name);
+          if (idx < 0) throw new Error(`${chosenColor.name} is no longer offered.`);
+          const have = colorStock(cur.colors[idx]);
+          if (have <= 0) throw new Error(`Sorry, ${chosenColor.name} just sold out.`);
+          if (qty > have) throw new Error(`Only ${have} left in ${chosenColor.name}. Please lower the quantity.`);
+          const colors = cur.colors.map((c, i) => ({ name: c.name, hex: c.hex, stock: i === idx ? have - qty : colorStock(c) }));
+          tx.update(productRef, { colors, stock: colors.reduce((s, c) => s + c.stock, 0) });
+        } else {
+          if (hasColors(cur)) throw new Error('Please choose a color.');
+          const have = toInt(cur.stock);
+          if (have <= 0) throw new Error('Sorry, this just sold out.');
+          if (qty > have) throw new Error(`Only ${have} left. Please lower the quantity.`);
+          tx.update(productRef, { stock: have - qty });
+        }
+
+        const unitPrice = Number(cur.price) || 0;
+        const total = Math.round(unitPrice * qty * 100) / 100;
+        const order = {
+          customerName: name,
+          customerPhone: phone,
+          productId: p.id,
+          productName: cur.name || '',
+          productImage: imagesOf(cur)[0] || '',
+          unitPrice,
+          color: chosenColor,
+          qty,
+          total,
+          fulfilment,
+          address: fulfilment === 'delivery' ? address : '',
+          status: 'pending',
+          createdAt: serverTimestamp()
+        };
+        tx.set(orderRef, order);
+        return order;
+      });
+      showDone(placed);
+    } catch (err) {
+      console.error('order failed', err);
+      showFeedback(err && err.message ? err.message : 'Something went wrong. Please try again.', true);
+      btn.disabled = false;
+      btn.textContent = 'Place Order';
+      syncForm();
+    }
+  });
+
+  function showDone(o) {
+    view = 'done';
+    sheetBody.innerHTML = `<div class="done-box">
+      <div class="done-check">&#10003;</div>
+      <h2>Order placed</h2>
+      <p>Thank you, ${escapeHtml(o.customerName)}! We've received your order.</p>
+      <div class="done-summary">
+        <strong>${escapeHtml(o.productName)}</strong>${o.color ? ` &middot; ${escapeHtml(o.color.name)}` : ''}<br>
+        Quantity: ${o.qty} &middot; Total: ${money(o.total)}<br>
+        ${o.fulfilment === 'delivery' ? `Delivery to: ${escapeHtml(o.address)}` : `Pickup at: ${escapeHtml(PICKUP_ADDRESS)}`}
+      </div>
+      <div class="done-ref">Your order reference: ${escapeHtml(o.customerName)}</div>
+      <p style="margin-top:0.7rem;font-size:0.85rem">Keep this name &mdash; it's how you'll find your order.</p>
+      <div style="padding:0 0.25rem"><button type="button" class="btn-primary" data-action="done">Done</button></div>
+    </div>`;
+    sheetBody.scrollTop = 0;
+  }
+</script>
+</body>
+</html>
