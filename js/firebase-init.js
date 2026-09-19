@@ -114,6 +114,49 @@ function toCustomerKey(name) {
   return String(name ?? '').trim().toLowerCase();
 }
 
+// ---------- TELEGRAM NOTIFICATIONS (shared across book.html, order.html,
+// and eventually admin.html) ----------
+// The bot token lives here in code (it doesn't change often). The chat ID
+// (which Telegram user/group should receive alerts) is looked up from
+// Firestore at settings/telegram so the admin dashboard can update it later
+// without any code changes.
+const TELEGRAM_BOT_TOKEN = "8713410345:AAGRVThQ-izz3I7Oe26rZQiQnf_OPwCPiog";
+
+async function getTelegramChatId() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'telegram'));
+    if (!snap.exists()) return null;
+    const chatId = snap.data().chatId;
+    return chatId ? String(chatId).trim() : null;
+  } catch (e) {
+    console.error('Could not read Telegram settings', e);
+    return null;
+  }
+}
+
+// Fire-and-forget notifier: failures are logged but never thrown, so a
+// Telegram hiccup never blocks a booking or order from completing.
+async function notifyTelegram(text) {
+  try {
+    const chatId = await getTelegramChatId();
+    if (!chatId) {
+      console.warn('No Telegram chat ID configured (settings/telegram.chatId) — skipping notification.');
+      return;
+    }
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text })
+    });
+    if (!res.ok) {
+      console.error('Telegram notification failed', await res.text());
+    }
+  } catch (e) {
+    console.error('Telegram notification error', e);
+  }
+}
+
 async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append("file", file);
@@ -146,6 +189,8 @@ export {
   runTransaction,
   arrayUnion,
   uploadToCloudinary,
+  notifyTelegram,
+  TELEGRAM_BOT_TOKEN,
   escapeHtml,
   formatNaira,
   toCustomerKey,
@@ -163,5 +208,6 @@ export {
   getSecondaryAuth,
   disposeSecondaryAuth
 };
+
 
   
