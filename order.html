@@ -338,7 +338,7 @@
     <a href="book.html">Book Appointment</a>
     <a href="order.html" class="active">Products</a>
     <a href="book.html">Services</a>
-    <a href="#">Contact</a>
+    <a href="contact.html">Contact</a>
     <a href="index.html#about">About</a>
     <a href="track.html">Track Order</a>
   </nav>
@@ -388,7 +388,7 @@
 
 <script type="module">
   import {
-    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml, formatNaira, toCustomerKey, notifyTelegram
+    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml, formatNaira, toCustomerKey
   } from './js/firebase-init.js';
   import { mountPhoneInput } from './js/phone-input.js';
 
@@ -766,18 +766,6 @@
         tx.set(orderRef, order);
         return order;
       });
-
-      notifyTelegram(
-        `\uD83D\uDED2 New order\n` +
-        `Name: ${placed.customerName}\n` +
-        `Phone: ${placed.customerPhone}\n` +
-        `Item: ${placed.productName}${placed.color ? ' (' + placed.color.name + ')' : ''} x${placed.qty}\n` +
-        `Total: ${formatNaira(placed.total)}\n` +
-        (placed.fulfilment === 'delivery'
-          ? `Address: ${placed.address}`
-          : `Pickup at: ${PICKUP_ADDRESS}`)
-      );
-
       showDone(placed);
     } catch (err) {
       console.error('order failed', err);
