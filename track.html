@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Your Order or Booking — Emeldaz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     RESET + THEME — same variables as index.html / book.html / order.html
+     ============================================================ */
+  :root {
+    color-scheme: light;
+    --beige: #e8dcc8;
+    --beige-light: #f3ece0;
+    --beige-dark: #d8c3a0;
+    --brown-text: #3b2f22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #111;
+    background: #fff;
+  }
+
+  /* ============================================================
+     NAVBAR — copied from index.html/book.html/order.html so every
+     page matches exactly
+     ============================================================ */
+  .navbar {
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.25rem;
+    position: relative;
+    z-index: 100;
+  }
+  .navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+  }
+  .navbar .logo img {
+    display: block;
+    height: 32px;
+    width: auto;
+  }
+  .navbar .logo-text {
+    font-family: "Dancing Script", "Brush Script MT", cursive;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .navbar .nav-links a {
+    color: #fff;
+    text-decoration: none;
+  }
+  .navbar .nav-links a.active {
+    color: var(--beige);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .nav-toggle { display: none; }
+  .nav-toggle-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .nav-toggle-label span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: #fff;
+  }
+  .navbar .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #000;
+    padding: 0 1.25rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease, padding 0.2s ease;
+    z-index: 100;
+  }
+  .nav-toggle:checked ~ .nav-links {
+    max-height: 300px;
+    padding: 1rem 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .nav-toggle-label { display: none; }
+    .navbar .nav-links {
+      position: static;
+      flex-direction: row;
+      gap: 1.5rem;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+      background: transparent;
+    }
+  }
+
+  /* ============================================================
+     PAGE BANNER
+     ============================================================ */
+  .page-banner {
+    background: var(--beige);
+    padding: 2.5rem 1.25rem 2rem;
+    text-align: left;
+  }
+  .page-banner h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--brown-text);
+  }
+  .page-banner p {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    color: #4a3f30;
+    max-width: 50ch;
+  }
+  @media (min-width: 768px) {
+    .page-banner { padding: 4rem 3rem 3rem; }
+    .page-banner h1 { font-size: 2.25rem; }
+    .page-banner p { font-size: 1.05rem; }
+  }
+
+  /* ============================================================
+     TRACK SECTION
+     ============================================================ */
+  .track-section { padding: 2rem 1.25rem 3rem; }
+  .track-container { max-width: 640px; margin: 0 auto; }
+
+  .track-search-card {
+    background: var(--beige-light);
+    border: 1px solid var(--beige-dark);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .track-search-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--brown-text);
+    margin-bottom: 0.5rem;
+  }
+  .track-search-row {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .track-search-row input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.75rem 0.85rem;
+    font: inherit;
+    font-size: 1rem;
+    border: 2px solid var(--beige-dark);
+    border-radius: 6px;
+    background: #fff;
+    color: #111;
+  }
+  .track-search-row input:focus { outline: none; border-color: var(--brown-text); }
+  .track-search-row button {
+    flex: 0 0 auto;
+    padding: 0 1.25rem;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.92rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--brown-text);
+    color: #fff;
+    cursor: pointer;
+  }
+  .track-search-row button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .track-search-hint {
+    font-size: 0.8rem;
+    color: #6b5c47;
+    margin-top: 0.6rem;
+  }
+
+  /* ---- Orders / Reservations pill switch ---- */
+  .track-mode-switch {
+    position: relative;
+    display: flex;
+    background: #fff;
+    border: 2px solid var(--beige-dark);
+    border-radius: 999px;
+    padding: 3px;
+    margin-bottom: 1.25rem;
+    max-width: 320px;
+    overflow: hidden;
+  }
+  .track-mode-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    height: calc(100% - 6px);
+    background: var(--brown-text);
+    border-radius: 999px;
+    transition: transform 0.25s ease;
+    z-index: 0;
+  }
+  .track-mode-switch[data-mode="reservations"] .track-mode-thumb { transform: translateX(100%); }
+  .track-mode-btn {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 0.6rem 0;
+    color: var(--brown-text);
+    border-radius: 999px;
+    transition: color 0.2s ease;
+  }
+  .track-mode-btn.active { color: #fff; }
+
+  .track-status-line {
+    font-size: 0.85rem;
+    color: #6b5c47;
+    margin-bottom: 1rem;
+    min-height: 1.2em;
+  }
+  .track-status-line.error { color: #b00020; }
+
+  .track-results { display: flex; flex-direction: column; gap: 0.9rem; }
+
+  .track-card {
+    border: 1px solid var(--beige-dark);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    background: #fff;
+  }
+  .track-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .track-card-media {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+  .track-card-media img {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: var(--beige-light);
+  }
+  .track-card-name {
+    font-weight: 700;
+    color: var(--brown-text);
+    font-size: 0.98rem;
+  }
+  .track-card-sub {
+    font-size: 0.82rem;
+    color: #6b5c47;
+    margin-top: 0.15rem;
+  }
+  .track-card-color-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.35rem;
+    vertical-align: middle;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+  .track-status-pill {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .track-status-pill.st-pending { background: #c98a2c; color: #000; }
+  .track-status-pill.st-confirmed, .track-status-pill.st-processing, .track-status-pill.st-in-progress { background: var(--brown-text); color: #fff; }
+  .track-status-pill.st-completed { background: #000; color: #fff; }
+  .track-status-pill.st-cancelled, .track-status-pill.st-rejected { background: #fff; color: #b00020; box-shadow: inset 0 0 0 1px #b00020; }
+
+  .track-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #4a3f30;
+  }
+  .track-card-meta strong { color: var(--brown-text); }
+
+  .track-updates {
+    margin-top: 0.85rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--beige-dark);
+  }
+  .track-updates-heading {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6b5c47;
+    margin-bottom: 0.4rem;
+  }
+  .track-update-row {
+    font-size: 0.85rem;
+    color: #333;
+    padding: 0.35rem 0;
+  }
+  .track-update-row + .track-update-row { border-top: 1px solid var(--beige-light); }
+  .track-update-when {
+    display: block;
+    font-size: 0.72rem;
+    color: #948a7c;
+    margin-top: 0.1rem;
+  }
+  .track-no-updates {
+    font-size: 0.82rem;
+    color: #948a7c;
+    font-style: italic;
+  }
+
+  .track-empty, .track-loading {
+    font-size: 0.9rem;
+    color: #6b5c47;
+    padding: 1.5rem 0.5rem;
+    text-align: center;
+  }
+
+  /* ---- Footer — copied from book.html/order.html so it matches exactly ---- */
+  footer { background: var(--beige); padding: 2.5rem 1.25rem 0; }
+  .footer-main { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem; padding-bottom: 2rem; }
+  .footer-logo img { height: 48px; width: auto; }
+  .footer-heading { font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--brown-text); margin-bottom: 0.4rem; }
+  .footer-info p { font-size: 0.88rem; color: #4a3f30; line-height: 1.6; }
+  .footer-bottom { border-top: 1px solid var(--beige-dark); padding: 1rem 0; text-align: center; }
+  .footer-bottom p { font-size: 0.78rem; color: #6b5c47; }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <a href="index.html" class="logo">
+    <img src="logo.png" alt="Emeldaz logo">
+    <span class="logo-text">Emeldaz</span>
+  </a>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle">
+  <label for="nav-toggle" class="nav-toggle-label">
+    <span></span><span></span><span></span>
+  </label>
+
+  <nav class="nav-links">
+    <a href="book.html">Book Appointment</a>
+    <a href="order.html">Products</a>
+    <a href="book.html">Services</a>
+    <a href="#">Contact</a>
+    <a href="index.html#about">About</a>
+    <a href="track.html" class="active">Track Order</a>
+  </nav>
+</header>
+
+<div class="page-banner">
+  <h1>Track Your Order or Booking</h1>
+  <p>Enter the name or handle you gave when you booked or ordered to see where things stand.</p>
+</div>
+
+<section class="track-section">
+  <div class="track-container">
+
+    <div class="track-search-card">
+      <label class="track-search-label" for="trackNameInput">Your name or handle</label>
+      <form id="trackForm" class="track-search-row" novalidate>
+        <input type="text" id="trackNameInput" placeholder="e.g. Sarah" autocomplete="off" required>
+        <button type="submit" id="trackBtn">Track</button>
+      </form>
+      <p class="track-search-hint">This is the same name or handle you typed when you booked or ordered — it doesn't need to be unique.</p>
+    </div>
+
+    <div class="track-mode-switch" id="trackModeSwitch" data-mode="orders">
+      <span class="track-mode-thumb"></span>
+      <button type="button" class="track-mode-btn active" id="trackModeOrdersBtn" data-mode="orders">Orders</button>
+      <button type="button" class="track-mode-btn" id="trackModeReservationsBtn" data-mode="reservations">Reservations</button>
+    </div>
+
+    <p class="track-status-line" id="trackStatusLine"></p>
+    <div class="track-results" id="trackResults"></div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-logo">
+      <img src="logo.png" alt="Emeldaz Unisex Salon &amp; Spa logo">
+    </div>
+    <div class="footer-info">
+      <h3 class="footer-heading">Visit Us</h3>
+      <p>
+        202 Peter Odili Road, Port Harcourt, Nigeria<br>
+        +234 904 370 9147<br>
+        Available for bookings via WhatsApp
+      </p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; EMELDAZ UNISEX SALON 2026</p>
+  </div>
+</footer>
+
+<script type="module">
+  import {
+    db, collection, query, where, onSnapshot, escapeHtml, formatNaira, toCustomerKey
+  } from './js/firebase-init.js';
+
+  const ordersCol = collection(db, 'orders');
+  const bookingsCol = collection(db, 'bookings');
+  const PICKUP_ADDRESS = '202 Peter Odili Road, Port Harcourt';
+
+  // ============================================================
+  // DOM REFS
+  // ============================================================
+  const trackForm = document.getElementById('trackForm');
+  const trackNameInput = document.getElementById('trackNameInput');
+  const trackBtn = document.getElementById('trackBtn');
+  const modeSwitch = document.getElementById('trackModeSwitch');
+  const modeOrdersBtn = document.getElementById('trackModeOrdersBtn');
+  const modeReservationsBtn = document.getElementById('trackModeReservationsBtn');
+  const statusLine = document.getElementById('trackStatusLine');
+  const resultsEl = document.getElementById('trackResults');
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  let mode = 'orders';          // 'orders' | 'reservations'
+  let searchedKey = '';         // lower-cased, trimmed — what was actually searched
+  let searchedName = '';        // as typed, trimmed — for the exact-match fallback + display
+  let hasSearched = false;
+  let unsubKey = null;
+  let unsubName = null;
+  let byIdFromKey = new Map();  // matches via `customerKey` (current docs)
+  let byIdFromName = new Map(); // fallback matches via exact `customerName` (legacy docs with no customerKey)
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+  const STATUS_LABEL = (s) => String(s || 'pending').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+  function tsMillis(ts) {
+    if (!ts) return 0;
+    if (typeof ts.toMillis === 'function') return ts.toMillis();
+    return 0;
+  }
+
+  function formatDateHuman(dateStr) {
+    if (!dateStr) return '';
+    const [y, m, d] = String(dateStr).split('-').map(Number);
+    if (!y || !m || !d) return escapeHtml(dateStr);
+    const dt = new Date(y, m - 1, d);
+    return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function formatTimeHuman(key) {
+    if (!key || !key.includes(':')) return '';
+    const [h, m] = key.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    let displayHour = h % 12; if (displayHour === 0) displayHour = 12;
+    return `${displayHour}:${String(m).padStart(2, '0')} ${period}`;
+  }
+
+  function updatesHtml(doc) {
+    const updates = Array.isArray(doc.updates) ? doc.updates.slice().sort((a, b) => (b.at || 0) - (a.at || 0)) : [];
+    if (updates.length === 0) {
+      return `<div class="track-updates"><p class="track-no-updates">No updates yet — check back for news on this ${doc.__kind}.</p></div>`;
+    }
+    return `<div class="track-updates">
+      <div class="track-updates-heading">Updates</div>
+      ${updates.map(u => `<div class="track-update-row">
+        ${escapeHtml(u.message || '')}
+        <span class="track-update-when">${escapeHtml(u.by || 'Emeldaz')}${u.at ? ' &middot; ' + new Date(u.at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</span>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  function orderCardHtml(o) {
+    return `<div class="track-card">
+      <div class="track-card-top">
+        <div class="track-card-media">
+          ${o.productImage ? `<img src="${escapeHtml(o.productImage)}" alt="">` : ''}
+          <div>
+            <div class="track-card-name">${escapeHtml(o.productName || 'Product')}</div>
+            ${o.color && o.color.name ? `<div class="track-card-sub"><span class="track-card-color-dot" style="background:${escapeHtml(o.color.hex || '#ccc')}"></span>${escapeHtml(o.color.name)}</div>` : ''}
+          </div>
+        </div>
+        <span class="track-status-pill st-${escapeHtml(o.status || 'pending')}">${escapeHtml(STATUS_LABEL(o.status))}</span>
+      </div>
+      <div class="track-card-meta">
+        <span>Qty: <strong>${escapeHtml(String(o.qty || 1))}</strong></span>
+        <span>Total: <strong>${formatNaira(o.total)}</strong></span>
+        <span>${o.fulfilment === 'delivery' ? 'Delivery' : `Pickup at ${escapeHtml(PICKUP_ADDRESS)}`}</span>
+      </div>
+      ${updatesHtml({ ...o, __kind: 'order' })}
+    </div>`;
+  }
+
+  function reservationCardHtml(r) {
+    return `<div class="track-card">
+      <div class="track-card-top">
+        <div class="track-card-media">
+          <div>
+            <div class="track-card-name">${escapeHtml(r.serviceName || 'Service')}</div>
+            <div class="track-card-sub">${formatDateHuman(r.date)}${r.time ? ' &middot; ' + formatTimeHuman(r.time) : ''}</div>
+          </div>
+        </div>
+        <span class="track-status-pill st-${escapeHtml(r.status || 'pending')}">${escapeHtml(STATUS_LABEL(r.status))}</span>
+      </div>
+      <div class="track-card-meta">
+        <span>Price: <strong>${formatNaira(r.price)}</strong></span>
+        ${r.duration ? `<span>${escapeHtml(String(r.duration))} min</span>` : ''}
+      </div>
+      ${updatesHtml({ ...r, __kind: 'booking' })}
+    </div>`;
+  }
+
+  // ============================================================
+  // LISTENERS
+  // ============================================================
+  function stopListening() {
+    if (unsubKey) { unsubKey(); unsubKey = null; }
+    if (unsubName) { unsubName(); unsubName = null; }
+    byIdFromKey = new Map();
+    byIdFromName = new Map();
+  }
+
+  function handleListenerError(err) {
+    console.error('track listener failed', err);
+    statusLine.textContent = 'Something went wrong looking that up. Please try again.';
+    statusLine.classList.add('error');
+  }
+
+  function startListening() {
+    stopListening();
+    if (!searchedKey) return;
+    const col = mode === 'orders' ? ordersCol : bookingsCol;
+
+    unsubKey = onSnapshot(
+      query(col, where('customerKey', '==', searchedKey)),
+      (snap) => {
+        byIdFromKey = new Map(snap.docs.map(d => [d.id, { id: d.id, ...d.data() }]));
+        render();
+      },
+      handleListenerError
+    );
+
+    // Fallback for older docs written before `customerKey` existed —
+    // exact (case-sensitive) match on the name as typed.
+    unsubName = onSnapshot(
+      query(col, where('customerName', '==', searchedName)),
+      (snap) => {
+        byIdFromName = new Map(
+          snap.docs.filter(d => !d.data().customerKey).map(d => [d.id, { id: d.id, ...d.data() }])
+        );
+        render();
+      },
+      handleListenerError
+    );
+  }
+
+  function mergedResults() {
+    const merged = new Map();
+    for (const [id, d] of byIdFromKey) merged.set(id, d);
+    for (const [id, d] of byIdFromName) merged.set(id, d);
+    return [...merged.values()].sort((a, b) => tsMillis(b.createdAt) - tsMillis(a.createdAt));
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+  function render() {
+    if (!hasSearched) {
+      statusLine.textContent = '';
+      resultsEl.innerHTML = '';
+      return;
+    }
+    const results = mergedResults();
+    statusLine.classList.remove('error');
+    statusLine.textContent = `${results.length} ${mode === 'orders' ? 'order' : 'reservation'}${results.length === 1 ? '' : 's'} found for \u201c${searchedName}\u201d`;
+
+    if (results.length === 0) {
+      resultsEl.innerHTML = `<p class="track-empty">Nothing found under that name yet. Double-check the spelling, or try again in a moment if you just placed it.</p>`;
+      return;
+    }
+    resultsEl.innerHTML = results.map(r => mode === 'orders' ? orderCardHtml(r) : reservationCardHtml(r)).join('');
+  }
+
+  // ============================================================
+  // EVENTS
+  // ============================================================
+  trackForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const typed = trackNameInput.value.trim();
+    if (!typed) { statusLine.textContent = 'Please enter the name or handle you used.'; statusLine.classList.add('error'); return; }
+    searchedName = typed;
+    searchedKey = toCustomerKey(typed);
+    hasSearched = true;
+    resultsEl.innerHTML = `<p class="track-loading">Looking that up\u2026</p>`;
+    startListening();
+  });
+
+  function setMode(newMode) {
+    if (mode === newMode) return;
+    mode = newMode;
+    modeSwitch.dataset.mode = mode;
+    modeOrdersBtn.classList.toggle('active', mode === 'orders');
+    modeReservationsBtn.classList.toggle('active', mode === 'reservations');
+    if (hasSearched) {
+      resultsEl.innerHTML = `<p class="track-loading">Looking that up\u2026</p>`;
+      startListening();
+    }
+  }
+  modeOrdersBtn.addEventListener('click', () => setMode('orders'));
+  modeReservationsBtn.addEventListener('click', () => setMode('reservations'));
+</script>
+</body>
+</html>

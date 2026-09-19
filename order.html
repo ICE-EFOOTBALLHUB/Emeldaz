@@ -340,6 +340,7 @@
     <a href="book.html">Services</a>
     <a href="#">Contact</a>
     <a href="index.html#about">About</a>
+    <a href="track.html">Track Order</a>
   </nav>
 </header>
 
@@ -387,7 +388,7 @@
 
 <script type="module">
   import {
-    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml, formatNaira
+    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml, formatNaira, toCustomerKey
   } from './js/firebase-init.js';
   import { mountPhoneInput } from './js/phone-input.js';
 
@@ -748,6 +749,7 @@
         const total = Math.round(unitPrice * qty * 100) / 100;
         const order = {
           customerName: name,
+          customerKey: toCustomerKey(name),
           customerPhone: phone,
           productId: p.id,
           productName: cur.name || '',

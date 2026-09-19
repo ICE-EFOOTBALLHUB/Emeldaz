@@ -547,6 +547,7 @@
     <a href="#">Services</a>
     <a href="#">Contact</a>
     <a href="index.html#about">About</a>
+    <a href="track.html">Track Order</a>
   </nav>
 </header>
 
@@ -635,7 +636,7 @@
 
 <script type="module">
   import {
-    db, collection, addDoc, onSnapshot, query, where, serverTimestamp, escapeHtml, formatNaira
+    db, collection, addDoc, onSnapshot, query, where, serverTimestamp, escapeHtml, formatNaira, toCustomerKey
   } from './js/firebase-init.js';
   import { mountPhoneInput } from './js/phone-input.js';
 
@@ -933,6 +934,7 @@
         const time = chosenTimes.get(id);
         await addDoc(bookingsCol, {
           customerName: name,
+          customerKey: toCustomerKey(name),
           customerPhone: phone,
           serviceId: id,
           serviceName: service ? service.name : '',
