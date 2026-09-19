@@ -388,7 +388,7 @@
 
 <script type="module">
   import {
-    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml, formatNaira, toCustomerKey
+    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml, formatNaira, toCustomerKey, notifyTelegram
   } from './js/firebase-init.js';
   import { mountPhoneInput } from './js/phone-input.js';
 
@@ -766,6 +766,18 @@
         tx.set(orderRef, order);
         return order;
       });
+
+      notifyTelegram(
+        `\uD83D\uDED2 New order\n` +
+        `Name: ${placed.customerName}\n` +
+        `Phone: ${placed.customerPhone}\n` +
+        `Item: ${placed.productName}${placed.color ? ' (' + placed.color.name + ')' : ''} x${placed.qty}\n` +
+        `Total: ${formatNaira(placed.total)}\n` +
+        (placed.fulfilment === 'delivery'
+          ? `Address: ${placed.address}`
+          : `Pickup at: ${PICKUP_ADDRESS}`)
+      );
+
       showDone(placed);
     } catch (err) {
       console.error('order failed', err);

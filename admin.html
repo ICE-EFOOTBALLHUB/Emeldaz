@@ -728,6 +728,29 @@
     </div>
   </section>
 
+  <!-- ---------- NOTIFICATIONS (owner only) ---------- -->
+  <section class="admin-section hidden" id="settingsSection">
+    <div class="admin-section-inner">
+      <p class="section-eyebrow">Settings</p>
+      <h2 class="section-heading">Telegram Notifications</h2>
+      <p class="section-count">Owner-only. New bookings and orders are sent to this chat automatically.</p>
+      <div class="admin-forms-grid" style="margin-bottom:0;">
+        <div class="admin-form-card">
+          <form id="settingsForm" novalidate>
+            <div class="form-group">
+              <label for="telegramChatId">Telegram Chat ID</label>
+              <input type="text" id="telegramChatId" placeholder="e.g. 123456789" autocomplete="off">
+              <p class="photo-slots-hint">Message the bot once from the account (or group) that should get alerts, then visit <code>https://api.telegram.org/bot&lt;YOUR TOKEN&gt;/getUpdates</code> in a browser to find the chat id. Group chat ids are negative numbers.</p>
+            </div>
+            <button type="submit" class="admin-submit-btn" id="settingsSubmitBtn">Save</button>
+            <button type="button" class="form-cancel-btn" id="settingsTestBtn">Send Test Message</button>
+            <p class="form-feedback" id="settingsFeedback"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="admin-footer">
     <p>&copy; EMELDAZ UNISEX SALON 2026 &middot; Admin Panel</p>
   </footer>
@@ -735,7 +758,7 @@
   <script type="module">
     import {
       db, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy, limit,
-      serverTimestamp, uploadToCloudinary, escapeHtml, formatNaira,
+      serverTimestamp, uploadToCloudinary, escapeHtml, formatNaira, TELEGRAM_BOT_TOKEN,
       auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
       updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence,
       browserLocalPersistence, browserSessionPersistence, getSecondaryAuth, disposeSecondaryAuth, setDoc
@@ -816,6 +839,7 @@
     let servicesUnsub = null;
     let staffListUnsub = null;
     let activityLogUnsub = null;
+    let settingsUnsub = null;
 
     function subscribeAllPanels() {
       if (panelsSubscribed) return;
@@ -826,6 +850,7 @@
       subscribeServices();
       subscribeStaffList();
       subscribeActivityLog();
+      subscribeSettings();
     }
 
     function unsubscribeAllPanels() {
@@ -836,6 +861,7 @@
       if (servicesUnsub) { servicesUnsub(); servicesUnsub = null; }
       if (staffListUnsub) { staffListUnsub(); staffListUnsub = null; }
       if (activityLogUnsub) { activityLogUnsub(); activityLogUnsub = null; }
+      if (settingsUnsub) { settingsUnsub(); settingsUnsub = null; }
     }
 
     function can(category) {
@@ -1135,6 +1161,9 @@
 
       // Activity log: owner only, section hidden entirely otherwise
       document.getElementById('activityLogSection').classList.toggle('hidden', !(currentStaff && currentStaff.isOwner));
+
+      // Notification settings: owner only, section hidden entirely otherwise
+      document.getElementById('settingsSection').classList.toggle('hidden', !(currentStaff && currentStaff.isOwner));
     }
 
     // ============================================================
@@ -2330,6 +2359,86 @@
         }
       });
     }
+
+    // ============================================================
+    // NOTIFICATION SETTINGS (owner-only) — stores the Telegram chat id
+    // that book.html/order.html read (via notifyTelegram) at
+    // settings/telegram.chatId. Public pages only ever READ this doc;
+    // only the owner can write it (enforce that in Firestore rules).
+    // ============================================================
+    const settingsForm = document.getElementById('settingsForm');
+    const telegramChatIdInput = document.getElementById('telegramChatId');
+    const settingsFeedback = document.getElementById('settingsFeedback');
+    const settingsTestBtn = document.getElementById('settingsTestBtn');
+
+    function subscribeSettings() {
+      settingsUnsub = onSnapshot(doc(db, 'settings', 'telegram'), (snap) => {
+        if (!currentStaff || !currentStaff.isOwner) return;
+        // Don't stomp on what the owner is mid-typing if this fires while editing.
+        if (document.activeElement === telegramChatIdInput) return;
+        telegramChatIdInput.value = snap.exists() ? (snap.data().chatId || '') : '';
+      }, (err) => {
+        if (currentStaff && currentStaff.isOwner) {
+          reportFirebaseError('settings listener (owner)', err);
+        }
+      });
+    }
+
+    settingsForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentStaff || !currentStaff.isOwner) return;
+      const chatId = telegramChatIdInput.value.trim();
+      const btn = document.getElementById('settingsSubmitBtn');
+      btn.disabled = true;
+      settingsFeedback.textContent = '';
+      try {
+        await setDoc(doc(db, 'settings', 'telegram'), {
+          chatId,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentStaff.name || currentStaff.handle || 'owner'
+        }, { merge: true });
+        settingsFeedback.textContent = chatId ? 'Saved. Bookings and orders will notify this chat.' : 'Saved. Telegram notifications are now off (no chat id set).';
+        logActivity('Updated Telegram settings', chatId ? `Chat ID set` : 'Chat ID cleared');
+      } catch (err) {
+        reportFirebaseError('settings save (owner)', err);
+        settingsFeedback.textContent = `Could not save: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    settingsTestBtn.addEventListener('click', async () => {
+      if (!currentStaff || !currentStaff.isOwner) return;
+      const chatId = telegramChatIdInput.value.trim();
+      if (!chatId) {
+        settingsFeedback.textContent = 'Enter and save a chat id first.';
+        return;
+      }
+      settingsTestBtn.disabled = true;
+      settingsFeedback.textContent = 'Sending test message\u2026';
+      try {
+        // Tests the chat id currently in the input (not necessarily saved
+        // yet) and surfaces real success/failure, unlike notifyTelegram
+        // (used by book.html/order.html) which is deliberately silent.
+        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: '\u2705 Test message from Emeldaz admin dashboard. If you see this, notifications are working.'
+          })
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data || !data.ok) {
+          throw new Error((data && data.description) || `Telegram returned ${res.status}`);
+        }
+        settingsFeedback.textContent = 'Test message sent \u2014 check Telegram.';
+      } catch (err) {
+        settingsFeedback.textContent = `Could not send test message: ${err.message}. Double-check the chat id, and that you've messaged the bot at least once.`;
+      } finally {
+        settingsTestBtn.disabled = false;
+      }
+    });
   </script>
 
 </body>

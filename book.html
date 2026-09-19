@@ -636,7 +636,7 @@
 
 <script type="module">
   import {
-    db, collection, addDoc, onSnapshot, query, where, serverTimestamp, escapeHtml, formatNaira, toCustomerKey
+    db, collection, addDoc, onSnapshot, query, where, serverTimestamp, escapeHtml, formatNaira, toCustomerKey, notifyTelegram
   } from './js/firebase-init.js';
   import { mountPhoneInput } from './js/phone-input.js';
 
@@ -951,6 +951,16 @@
           price: service ? service.price : null
         });
       }
+
+      const itemsList = bookedItems.map((it) => `\u2022 ${it.name} at ${slotLabel(it.time)}`).join('\n');
+      notifyTelegram(
+        `\uD83D\uDCC5 New booking\n` +
+        `Name: ${name}\n` +
+        `Phone: ${phone}\n` +
+        `Date: ${selectedDate}\n` +
+        `${itemsList}`
+      );
+
       showConfirmation(name, bookedItems);
     } catch (err) {
       console.error('Booking write failed', err);
