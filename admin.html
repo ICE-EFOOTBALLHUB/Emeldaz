@@ -289,6 +289,21 @@
   .admin-lock-card img { width: 52px; height: 52px; margin-bottom: 16px; }
   .admin-lock-card h1 { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 19px; letter-spacing: 1px; color: #fff; margin-bottom: 6px; }
   .admin-lock-card p { font-size: 13px; color: #a0a0a0; margin-bottom: 20px; }
+  .admin-lock-mode-switch {
+    position: relative; display: flex; background: #1a1a1a; border: 1px solid #333;
+    border-radius: 999px; padding: 3px; margin-bottom: 18px; overflow: hidden;
+  }
+  .admin-lock-mode-thumb {
+    position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px);
+    background: var(--beige); border-radius: 999px; transition: transform 0.25s ease; z-index: 0;
+  }
+  .admin-lock-mode-switch[data-mode="owner"] .admin-lock-mode-thumb { transform: translateX(100%); }
+  .admin-lock-mode-btn {
+    position: relative; z-index: 1; flex: 1; border: none; background: transparent; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.5px;
+    padding: 9px 0; color: #a0a0a0; border-radius: 999px; transition: color 0.2s ease;
+  }
+  .admin-lock-mode-btn.active { color: #0d0d0d; }
   .admin-lock-input, .admin-lock-name-input {
     width: 100%; font-family: 'Poppins', sans-serif; font-weight: 600; padding: 14px 12px; border: 1px solid #333;
     background: #1a1a1a; color: #fff; border-radius: 2px; margin-bottom: 12px;
@@ -316,9 +331,16 @@
   <div class="admin-lock-card">
     <img src="logo.png" alt="Emeldaz logo">
     <h1>Staff Access</h1>
-    <p>Enter your name/handle and your code to continue.</p>
+    <p id="adminLockIntro">Enter your name/handle and your code to continue.</p>
     <form id="adminLockForm">
-      <input type="text" autocomplete="off" class="admin-lock-name-input" id="adminLockHandle" placeholder="Name or handle (e.g. owner)">
+      <div class="admin-lock-mode-switch" id="adminLockModeSwitch" data-mode="staff">
+        <span class="admin-lock-mode-thumb"></span>
+        <button type="button" class="admin-lock-mode-btn active" id="adminLockModeStaffBtn" data-mode="staff">Staff</button>
+        <button type="button" class="admin-lock-mode-btn" id="adminLockModeOwnerBtn" data-mode="owner">Owner</button>
+      </div>
+      <div id="adminLockHandleWrap">
+        <input type="text" autocomplete="off" class="admin-lock-name-input" id="adminLockHandle" placeholder="Name or handle">
+      </div>
       <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" class="admin-lock-input" id="adminLockInput" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;">
       <label class="admin-lock-remember">
         <input type="checkbox" id="adminLockRemember">
@@ -380,7 +402,7 @@
   </header>
 
   <!-- ---------- RESERVATIONS ---------- -->
-  <section class="admin-section">
+  <section class="admin-section" id="bookingsSection">
     <div class="admin-section-inner">
       <p class="section-eyebrow">Bookings</p>
       <h2 class="section-heading">Reservations</h2>
@@ -398,7 +420,7 @@
   </section>
 
   <!-- ---------- ORDERS ---------- -->
-  <section class="admin-section alt">
+  <section class="admin-section alt" id="ordersSection">
     <div class="admin-section-inner">
       <p class="section-eyebrow">Shop</p>
       <h2 class="section-heading">Orders</h2>
@@ -416,7 +438,7 @@
   </section>
 
   <!-- ---------- PRODUCTS ---------- -->
-  <section class="admin-section">
+  <section class="admin-section" id="productsSection">
     <div class="admin-section-inner">
       <p class="section-eyebrow">Inventory</p>
       <h2 class="section-heading">Manage Products</h2>
@@ -491,7 +513,7 @@
   </section>
 
   <!-- ---------- SERVICES ---------- -->
-  <section class="admin-section alt">
+  <section class="admin-section alt" id="servicesSection">
     <div class="admin-section-inner">
       <p class="section-eyebrow">Salon</p>
       <h2 class="section-heading">Manage Services</h2>
@@ -549,7 +571,7 @@
   </section>
 
   <!-- ---------- PER-SERVICE AVAILABILITY ---------- -->
-  <section class="admin-section">
+  <section class="admin-section" id="availabilitySection">
     <div class="admin-section-inner">
       <p class="section-eyebrow">Booking Hours</p>
       <h2 class="section-heading">Manage Availability</h2>
@@ -820,10 +842,39 @@
     const lockOverlay = document.getElementById('adminLockOverlay');
     const lockForm = document.getElementById('adminLockForm');
     const lockHandleInput = document.getElementById('adminLockHandle');
+    const lockHandleWrap = document.getElementById('adminLockHandleWrap');
     const lockInput = document.getElementById('adminLockInput');
     const lockRemember = document.getElementById('adminLockRemember');
     const lockFeedback = document.getElementById('adminLockFeedback');
     const lockSubmit = document.getElementById('adminLockSubmit');
+    const lockIntro = document.getElementById('adminLockIntro');
+    const lockModeSwitch = document.getElementById('adminLockModeSwitch');
+    const lockModeStaffBtn = document.getElementById('adminLockModeStaffBtn');
+    const lockModeOwnerBtn = document.getElementById('adminLockModeOwnerBtn');
+
+    // ---------- OWNER / STAFF SWITCH ----------
+    // Purely a UX convenience: the owner still signs in through the exact
+    // same emailForHandle('owner') path as before. In "Owner" mode the
+    // handle field is hidden (handle is implicitly "owner"); in "Staff"
+    // mode the handle field is shown as usual.
+    let lockMode = 'staff';
+    function setLockMode(mode) {
+      lockMode = mode;
+      lockModeSwitch.setAttribute('data-mode', mode);
+      lockModeStaffBtn.classList.toggle('active', mode === 'staff');
+      lockModeOwnerBtn.classList.toggle('active', mode === 'owner');
+      if (mode === 'owner') {
+        lockHandleWrap.style.display = 'none';
+        lockIntro.textContent = 'Enter the owner code to continue.';
+        lockInput.focus();
+      } else {
+        lockHandleWrap.style.display = '';
+        lockIntro.textContent = 'Enter your name/handle and your code to continue.';
+      }
+      lockFeedback.textContent = '';
+    }
+    lockModeStaffBtn.addEventListener('click', () => setLockMode('staff'));
+    lockModeOwnerBtn.addEventListener('click', () => setLockMode('owner'));
     const adminWhoami = document.getElementById('adminWhoami');
     const adminWhoamiName = document.getElementById('adminWhoamiName');
 
@@ -835,6 +886,7 @@
       lockOverlay.style.display = 'flex';
       document.body.style.overflow = 'hidden';
       adminWhoami.style.display = 'none';
+      setLockMode('staff');
       if (message) lockFeedback.textContent = message;
     }
 
@@ -903,7 +955,7 @@
 
     lockForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const handle = lockHandleInput.value.trim();
+      const handle = lockMode === 'owner' ? 'owner' : lockHandleInput.value.trim();
       const code = lockInput.value.trim();
       if (!handle) {
         lockFeedback.textContent = 'Enter your name or handle.';
@@ -1001,30 +1053,41 @@
     // PERMISSION-GATED UI
     // ============================================================
     function applyPermissionsToUI() {
-      // Bookings
+      // Bookings — whole section hidden unless the owner explicitly granted
+      // this staff member the "bookings" permission. (Previously the
+      // section stayed visible read-only with a note; now it's hidden
+      // outright, same as Staff/Activity Log already were.)
       const bookingsOk = can('bookings');
-      document.getElementById('bookingsPermNote').style.display = currentStaff && !bookingsOk ? 'block' : 'none';
+      document.getElementById('bookingsSection').classList.toggle('hidden', !bookingsOk);
+      document.getElementById('bookingsPermNote').style.display = 'none';
       document.querySelectorAll('#reservationsBody select, #reservationsBody .row-delete-btn').forEach(el => el.disabled = !bookingsOk);
 
       // Orders
       const ordersOk = can('orders');
-      document.getElementById('ordersPermNote').style.display = currentStaff && !ordersOk ? 'block' : 'none';
+      document.getElementById('ordersSection').classList.toggle('hidden', !ordersOk);
+      document.getElementById('ordersPermNote').style.display = 'none';
       document.querySelectorAll('#ordersBody select, #ordersBody .row-delete-btn').forEach(el => el.disabled = !ordersOk);
 
       // Products
       const productsOk = can('products');
-      document.getElementById('productsPermNote').style.display = currentStaff && !productsOk ? 'block' : 'none';
+      document.getElementById('productsSection').classList.toggle('hidden', !productsOk);
+      document.getElementById('productsPermNote').style.display = 'none';
       document.getElementById('productFormWrap').style.display = productsOk ? '' : 'none';
       document.querySelectorAll('#productsBody .row-edit-btn, #productsBody .row-delete-btn, #productsBody .stock-input').forEach(el => el.disabled = !productsOk);
 
       // Services (name/price/description/duration/photo)
       const servicesOk = can('services');
-      document.getElementById('servicesPermNote').style.display = currentStaff && !servicesOk ? 'block' : 'none';
+      document.getElementById('servicesSection').classList.toggle('hidden', !servicesOk);
+      document.getElementById('servicesPermNote').style.display = 'none';
       document.getElementById('serviceFormWrap').style.display = servicesOk ? '' : 'none';
       document.querySelectorAll('#servicesBody .row-edit-btn, #servicesBody .row-delete-btn').forEach(el => el.disabled = !servicesOk);
 
-      // Availability: its own permission, scoped per-service via availabilityServiceIds
-      document.getElementById('availabilityPermNote').style.display = currentStaff && !hasAnyAvailabilityAccess() ? 'block' : 'none';
+      // Availability: its own permission, scoped per-service via availabilityServiceIds.
+      // Hidden entirely unless this staff member has availability access to
+      // at least one service (full "services" perm counts too, via can('services') above).
+      const availabilityOk = hasAnyAvailabilityAccess();
+      document.getElementById('availabilitySection').classList.toggle('hidden', !availabilityOk);
+      document.getElementById('availabilityPermNote').style.display = 'none';
       renderAvailabilityJumpbar();
 
       // Staff roster: whole section hidden unless owner or explicit staff permission
