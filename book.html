@@ -345,6 +345,13 @@
     text-decoration: line-through;
     cursor: not-allowed;
   }
+  .time-slot.past {
+    background: #f2f2f2;
+    border-color: #e0e0e0;
+    color: #a8a8a8;
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
   .time-slot.selected {
     background: var(--brown-text);
     border-color: var(--brown-text);
@@ -629,6 +636,17 @@
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
+  function slotMinutes(key) {
+    const [h, m] = key.split(':').map(Number);
+    return h * 60 + m;
+  }
+  // Minutes-since-midnight right now, but only when the grid is showing
+  // today — a slot on any future date is never "past" no matter the clock.
+  function nowMinutesIfToday(dateStr) {
+    if (dateStr !== todayStr()) return null;
+    const d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
+  }
   function formatDateHuman(dateStr) {
     const [y, m, d] = dateStr.split('-').map(Number);
     const dt = new Date(y, m - 1, d);
@@ -817,20 +835,25 @@
     const openSlots = Array.isArray(service.openSlots) ? new Set(service.openSlots) : new Set(ALL_SLOTS);
     const booked = bookedSlotsMap.get(activeGridServiceId) || new Set();
     const chosen = chosenTimes.get(activeGridServiceId);
+    const nowMin = nowMinutesIfToday(selectedDate);
 
     timeGrid.innerHTML = ALL_SLOTS.map((key) => {
       const isOpen = openSlots.has(key);
       const isBooked = booked.has(key);
+      const isPast = nowMin !== null && slotMinutes(key) <= nowMin;
       const isSelected = key === chosen;
       let cls = 'time-slot';
       if (isSelected) cls += ' selected';
+      else if (isPast) cls += ' past';
       else if (!isOpen) cls += ' closed';
       else if (isBooked) cls += ' booked';
-      const disabled = (!isOpen || isBooked) && !isSelected;
+      const disabled = (!isOpen || isBooked || isPast) && !isSelected;
       return `<button type="button" class="${cls}" data-slot="${key}" ${disabled ? 'disabled' : ''}>${slotLabel(key)}</button>`;
     }).join('');
 
-    gridFeedback.textContent = `Showing hours for ${service.name || 'this service'} on ${formatDateHuman(selectedDate)}.`;
+    gridFeedback.textContent = nowMin !== null
+      ? `Showing hours for ${service.name || 'this service'} on ${formatDateHuman(selectedDate)}. Times already passed today are crossed out.`
+      : `Showing hours for ${service.name || 'this service'} on ${formatDateHuman(selectedDate)}.`;
   }
 
   timeGrid.addEventListener('click', (e) => {
@@ -943,6 +966,13 @@
     confirmStep.hidden = true;
     bookingFlow.hidden = false;
   });
+
+  // Keep "already passed" slots accurate as the clock moves, without
+  // requiring the customer to touch anything — only matters when the
+  // selected date is today; harmless no-op re-render otherwise.
+  setInterval(() => {
+    if (selectedDate === todayStr()) renderGrid();
+  }, 60000);
 
   // Initial paint.
   updateVisibility();
