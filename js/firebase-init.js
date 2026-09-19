@@ -15,7 +15,8 @@ import {
   orderBy,
   where,
   limit,
-  serverTimestamp
+  serverTimestamp,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import {
   getAuth,
@@ -117,6 +118,7 @@ export {
   where,
   limit,
   serverTimestamp,
+  runTransaction,
   uploadToCloudinary,
   escapeHtml,
   auth,
@@ -133,4 +135,5 @@ export {
   getSecondaryAuth,
   disposeSecondaryAuth
 };
+
   
