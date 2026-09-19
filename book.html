@@ -391,6 +391,28 @@
     outline: none;
     border-color: var(--brown-text);
   }
+  .phone-input-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .phone-country-select {
+    flex: 0 0 auto;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.92rem;
+    font-weight: 400;
+    border: 2px solid var(--beige-dark);
+    border-radius: 6px;
+    background: #fff;
+    color: #111;
+  }
+  .phone-country-select:focus {
+    outline: none;
+    border-color: var(--brown-text);
+  }
+  .phone-number-input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
   .form-hint {
     font-size: 0.78rem;
     color: #6b5c47;
@@ -571,7 +593,7 @@
               <input type="text" id="customerName" placeholder="e.g. Sarah, or your usual nickname" required>
             </label>
             <label for="customerPhone">Phone Number
-              <input type="tel" id="customerPhone" placeholder="e.g. 0803 123 4567" required>
+              <div id="customerPhoneField"></div>
             </label>
             <p class="form-hint">Remember whatever name or handle you type above — it's how you (or the shop) will recognize this booking later.</p>
             <button type="submit" class="submit-btn" id="submitBtn">Confirm Booking</button>
@@ -613,8 +635,9 @@
 
 <script type="module">
   import {
-    db, collection, addDoc, onSnapshot, query, where, serverTimestamp, escapeHtml
+    db, collection, addDoc, onSnapshot, query, where, serverTimestamp, escapeHtml, formatNaira
   } from './js/firebase-init.js';
+  import { mountPhoneInput } from './js/phone-input.js';
 
   // ============================================================
   // CONSTANTS
@@ -679,7 +702,10 @@
   const detailsStep = document.getElementById('detailsStep');
   const bookingForm = document.getElementById('bookingForm');
   const customerNameInput = document.getElementById('customerName');
-  const customerPhoneInput = document.getElementById('customerPhone');
+  const phoneInput = mountPhoneInput(document.getElementById('customerPhoneField'), {
+    id: 'customerPhone',
+    placeholder: 'e.g. 0803 123 4567'
+  });
   const submitBtn = document.getElementById('submitBtn');
   const formFeedback = document.getElementById('formFeedback');
   const bookingFlow = document.getElementById('bookingFlow');
@@ -751,7 +777,7 @@
             <h3 class="service-card-name">${escapeHtml(s.name || '')}</h3>
             ${s.description ? `<p class="service-card-desc">${escapeHtml(s.description)}</p>` : ''}
             <div class="service-card-meta">
-              <span class="service-price">&pound;${Number(s.price || 0).toFixed(2)} ${escapeHtml(s.priceUnit || '')}</span>
+              <span class="service-price">${formatNaira(s.price)} ${escapeHtml(s.priceUnit || '')}</span>
               <span class="service-duration">${s.duration || 30} min</span>
             </div>
           </div>
@@ -886,9 +912,9 @@
     formFeedback.textContent = '';
 
     const name = customerNameInput.value.trim();
-    const phone = customerPhoneInput.value.trim();
+    const phone = phoneInput.getValue();
 
-    if (!name || !phone) {
+    if (!name || !phoneInput.hasNumber()) {
       formFeedback.textContent = 'Please fill in your name/handle and phone number.';
       return;
     }
@@ -957,7 +983,7 @@
     selectedDate = todayStr();
     bookingDateInput.value = selectedDate;
     customerNameInput.value = '';
-    customerPhoneInput.value = '';
+    phoneInput.setValue('');
     formFeedback.textContent = '';
     renderServiceList();
     renderJumpbar();

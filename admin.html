@@ -509,7 +509,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="productPrice">Price (&pound;)</label>
+                <label for="productPrice">Price (&#8358;)</label>
                 <input type="number" id="productPrice" min="0" step="0.01" required>
               </div>
             </div>
@@ -575,7 +575,7 @@
             </div>
             <div class="form-row-2">
               <div class="form-group">
-                <label for="servicePrice">Price (&pound;)</label>
+                <label for="servicePrice">Price (&#8358;)</label>
                 <input type="number" id="servicePrice" min="0" step="0.01" required>
               </div>
               <div class="form-group">
@@ -735,7 +735,7 @@
   <script type="module">
     import {
       db, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, onSnapshot, query, orderBy, limit,
-      serverTimestamp, uploadToCloudinary, escapeHtml,
+      serverTimestamp, uploadToCloudinary, escapeHtml, formatNaira,
       auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
       updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence,
       browserLocalPersistence, browserSessionPersistence, getSecondaryAuth, disposeSecondaryAuth, setDoc
@@ -1199,14 +1199,14 @@
           const status = r.status || 'pending';
           const isFirst = i === 0;
           const customerCell = isFirst
-            ? `${escapeHtml(r.customerName || '')}<span class="cell-sub">${escapeHtml(r.customerPhone || '')}</span>${isMulti ? `<span class="group-badge">${items.length} services &middot; &pound;${groupTotal.toFixed(2)} total</span>` : ''}`
+            ? `${escapeHtml(r.customerName || '')}<span class="cell-sub">${escapeHtml(r.customerPhone || '')}</span>${isMulti ? `<span class="group-badge">${items.length} services &middot; ${formatNaira(groupTotal)} total</span>` : ''}`
             : '&#8618;'; // continuation of the same visit
           rowsHtml.push(`
             <tr class="${isMulti ? 'visit-row' : ''} ${isMulti && !isFirst ? 'visit-continued' : ''}">
               <td>${customerCell}</td>
               <td>${escapeHtml(r.serviceName || '')}</td>
               <td>${formatBookingDateTime(r)}</td>
-              <td class="cell-strong">&pound;${Number(r.price || 0).toFixed(2)}</td>
+              <td class="cell-strong">${formatNaira(r.price)}</td>
               <td>
                 <select class="status-select st-${status}" data-id="${r.id}" ${bookingsOk ? '' : 'disabled'}>
                   ${RES_STATUSES.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
@@ -1282,7 +1282,7 @@
           <td>${escapeHtml(o.customerName || '')}<span class="cell-sub">${escapeHtml(o.customerPhone || '')}</span></td>
           <td>${escapeHtml(o.productName || '')}${o.color && o.color.name ? `<span class="cell-sub order-color"><span class="product-swatch-dot" style="background:${escapeHtml(o.color.hex || '#ccc')}"></span>${escapeHtml(o.color.name)}</span>` : ''}</td>
           <td>${escapeHtml(String(o.qty || ''))}</td>
-          <td class="cell-strong">&pound;${Number(o.total || 0).toFixed(2)}</td>
+          <td class="cell-strong">${formatNaira(o.total)}</td>
           <td class="order-fulfil">${o.fulfilment === 'delivery'
               ? `<span class="fulfil-tag delivery">Delivery</span><span class="cell-sub order-address">${escapeHtml(o.address || 'No address given')}</span>`
               : o.fulfilment === 'pickup' ? '<span class="fulfil-tag">Pickup</span>' : '<span class="no-colors-text">&mdash;</span>'}</td>
@@ -1428,7 +1428,7 @@
           <td>${mainPhoto ? `<img class="table-thumb" src="${escapeHtml(mainPhoto)}" alt="${escapeHtml(p.name)}">` : ''}</td>
           <td class="cell-strong">${escapeHtml(p.name)}<span class="cell-sub">${escapeHtml(p.category || '')}</span></td>
           <td>${colorsHtml}</td>
-          <td>&pound;${Number(p.price).toFixed(2)}</td>
+          <td>${formatNaira(p.price)}</td>
           <td>${hasColors ? '' : `<input type="number" class="stock-input" data-id="${p.id}" value="${Number(p.stock) || 0}" min="0" ${productsOk ? '' : 'disabled'}>`}${stockBadge(hasColors ? colorsTotalStock(p.colors) : p.stock)}</td>
           <td class="cell-actions">
             <button type="button" class="row-edit-btn" data-id="${p.id}" ${productsOk ? '' : 'disabled'}>Edit</button>
@@ -1858,7 +1858,7 @@
           tr.innerHTML = `
             <td>${s.imageUrl ? `<img class="table-thumb" src="${escapeHtml(s.imageUrl)}" alt="${escapeHtml(s.name)}">` : ''}</td>
             <td class="cell-strong">${escapeHtml(s.name)}</td>
-            <td>&pound;${Number(s.price).toFixed(2)} <span class="cell-sub">${escapeHtml(s.priceUnit || '')}</span></td>
+            <td>${formatNaira(s.price)} <span class="cell-sub">${escapeHtml(s.priceUnit || '')}</span></td>
             <td>${s.duration || 30} min</td>
             <td class="cell-actions">
               <button type="button" class="row-edit-btn" data-id="${s.id}" ${servicesOk ? '' : 'disabled'}>Edit</button>

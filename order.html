@@ -236,6 +236,13 @@
   }
   .field textarea { min-height: 84px; resize: vertical; }
   .field input:focus, .field textarea:focus { outline: none; border-color: var(--brown-text); }
+  .phone-input-row { display: flex; gap: 0.5rem; }
+  .phone-country-select {
+    flex: 0 0 auto; padding: 0.75rem 0.5rem; font: inherit; font-size: 0.92rem;
+    border: 2px solid var(--beige-dark); border-radius: 6px; background: #fff; color: #111;
+  }
+  .phone-country-select:focus { outline: none; border-color: var(--brown-text); }
+  .phone-number-input { flex: 1 1 auto; min-width: 0; }
   .field-hint { font-size: 0.8rem; color: #6b5c47; margin-top: 0.4rem; }
 
   .color-options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -380,8 +387,9 @@
 
 <script type="module">
   import {
-    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml
+    db, collection, doc, onSnapshot, query, orderBy, runTransaction, serverTimestamp, escapeHtml, formatNaira
   } from './js/firebase-init.js';
+  import { mountPhoneInput } from './js/phone-input.js';
 
   const productsCol = collection(db, 'products');
   const ordersCol = collection(db, 'orders');
@@ -390,7 +398,7 @@
   // ============================================================
   // HELPERS
   // ============================================================
-  const money = (n) => '\u00A3' + (Number(n) || 0).toFixed(2);
+  const money = (n) => formatNaira(n);
   const toInt = (v) => Math.max(0, parseInt(v, 10) || 0);
   const imagesOf = (p) => (Array.isArray(p.imageUrls) && p.imageUrls.length) ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : []);
   const hasColors = (p) => Array.isArray(p.colors) && p.colors.length > 0;
@@ -406,6 +414,7 @@
   let view = 'details';                    // 'details' | 'form' | 'done'
   let sel = { colorIndex: null, qty: 1, fulfilment: 'pickup' };
   let lastFocus = null;
+  let orderPhoneInput = null;              // mounted phone-input instance for the current form render
 
   const grid = document.getElementById('productGrid');
   const overlay = document.getElementById('sheetOverlay');
@@ -479,6 +488,7 @@
     sheet.setAttribute('aria-hidden', 'true');
     document.documentElement.classList.remove('sheet-lock');
     openId = null;
+    orderPhoneInput = null;
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   }
 
@@ -493,7 +503,14 @@
     const p = currentProduct();
     if (!p) { closeSheet(); return; }
     if (view === 'details') sheetBody.innerHTML = detailsHtml(p);
-    else if (view === 'form') { sheetBody.innerHTML = formHtml(p); syncForm(); }
+    else if (view === 'form') {
+      sheetBody.innerHTML = formHtml(p);
+      orderPhoneInput = mountPhoneInput(document.getElementById('orderPhoneField'), {
+        id: 'orderPhone',
+        placeholder: 'e.g. 0904 370 9147'
+      });
+      syncForm();
+    }
   }
 
   function detailsHtml(p) {
@@ -556,7 +573,7 @@
         </div>
         <div class="field">
           <label for="orderPhone">Phone number</label>
-          <input type="tel" id="orderPhone" maxlength="25" placeholder="e.g. 0904 370 9147" autocomplete="tel">
+          <div id="orderPhoneField"></div>
         </div>
         <div class="total-row"><span>Total</span><strong id="orderTotal">${money(0)}</strong></div>
         <button type="submit" class="btn-primary" id="placeOrderBtn" style="margin-top:0.4rem">Place Order</button>
@@ -684,7 +701,7 @@
     if (!p) return;
 
     const name = document.getElementById('orderName').value.trim();
-    const phone = document.getElementById('orderPhone').value.trim();
+    const phone = orderPhoneInput ? orderPhoneInput.getValue() : '';
     const address = document.getElementById('orderAddress').value.trim();
     const fulfilment = sel.fulfilment;
     const qty = sel.qty;
@@ -693,7 +710,7 @@
     if (!Number.isInteger(qty) || qty < 1) { showFeedback('Please choose a quantity.', true); return; }
     if (fulfilment === 'delivery' && !address) { showFeedback('Please enter a delivery address.', true); return; }
     if (!name) { showFeedback('Please enter your name or handle.', true); return; }
-    if (!phone) { showFeedback('Please enter your phone number.', true); return; }
+    if (!orderPhoneInput || !orderPhoneInput.hasNumber()) { showFeedback('Please enter your phone number.', true); return; }
 
     const chosenColor = hasColors(p) ? { name: p.colors[sel.colorIndex].name, hex: p.colors[sel.colorIndex].hex } : null;
     const btn = document.getElementById('placeOrderBtn');
