@@ -1,0 +1,73 @@
+name: Replace repo with zip contents
+
+# Manual run: Actions tab -> "Replace repo with zip contents" -> Run workflow.
+# Put the same file at .github/workflows/unpack-zip.yml in BOTH repos.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: unpack-zip
+  cancel-in-progress: false
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find zip(s)
+        id: find
+        run: |
+          mkdir -p "$RUNNER_TEMP/zips"
+          # Look everywhere except .git and .github
+          find . \( -path ./.git -o -path ./.github \) -prune -o -type f -iname '*.zip' -print0 \
+            | while IFS= read -r -d '' z; do mv "$z" "$RUNNER_TEMP/zips/$(basename "$z")"; done
+          count=$(find "$RUNNER_TEMP/zips" -type f -iname '*.zip' | wc -l)
+          echo "Found $count zip file(s):"
+          ls -1 "$RUNNER_TEMP/zips"
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No .zip file found in the repo. Nothing was deleted."
+            exit 1
+          fi
+
+      - name: Delete everything except .git and .github
+        run: |
+          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github -exec rm -rf {} +
+          # also clear old workflow-side leftovers outside workflows/, keep the workflows themselves
+          ls -A
+
+      - name: Unpack zip(s)
+        run: |
+          shopt -s dotglob nullglob
+          for z in "$RUNNER_TEMP"/zips/*.zip "$RUNNER_TEMP"/zips/*.ZIP; do
+            echo "Unpacking $z"
+            tmp="$RUNNER_TEMP/extract"
+            rm -rf "$tmp" && mkdir -p "$tmp"
+            # never let the zip overwrite the repo's own workflows
+            unzip -q -o "$z" -x '__MACOSX/*' '*/.DS_Store' '.github/*' '*/.github/*' -d "$tmp"
+            # GitHub "Download ZIP" files wrap everything in one top-level folder: flatten it
+            entries=("$tmp"/*)
+            if [ "${#entries[@]}" -eq 1 ] && [ -d "${entries[0]}" ]; then
+              cp -a "${entries[0]}"/. .
+            else
+              cp -a "$tmp"/. .
+            fi
+          done
+          ls -A
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Replace repo contents with unpacked zip"
+          git push
+          
