@@ -1,3 +1,4 @@
+/*! ICEWS-WM | Built by ICE WEB SOLUTIONS | https://icewebsolutions.vercel.app | (c) 2026 | MIT License */
 // ---------- SHARED PHONE INPUT (country code + number) ----------
 // Used by book.html (`customerPhone`) and order.html (`orderPhone`).
 // admin.html has no phone *input* fields — it only ever displays numbers

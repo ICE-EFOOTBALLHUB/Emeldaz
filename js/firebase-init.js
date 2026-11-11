@@ -1,3 +1,4 @@
+/*! ICEWS-WM | Built by ICE WEB SOLUTIONS | https://icewebsolutions.vercel.app | (c) 2026 | MIT License */
 // ---------- FIREBASE INIT (shared across pages) ----------
 import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import {

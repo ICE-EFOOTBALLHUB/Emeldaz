@@ -1,0 +1,11 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Author", "value": "ICE WEB SOLUTIONS" },
+        { "key": "X-Built-By", "value": "https://icewebsolutions.vercel.app" }
+      ]
+    }
+  ]
+}

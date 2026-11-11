@@ -1,0 +1,13 @@
+Authorship statement
+====================
+Author:   ICE WEB SOLUTIONS
+Website:  https://icewebsolutions.vercel.app
+Project:  Emeldaz Unisex Salon & Spa
+Date:     2026-11-11
+License:  MIT
+
+This project (frontend and backend integration) was designed and built end
+to end by ICE WEB SOLUTIONS. The file MANIFEST.sha256 in the repository root lists the
+SHA-256 of every file as released on the date above.
+
+MANIFEST.sha256 SHA-256: dd8bf04687451a940b44202d124279ed5f84a4ba60dbcc40c4be5fe0dd9c49b0
